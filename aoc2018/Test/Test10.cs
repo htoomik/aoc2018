@@ -1,0 +1,70 @@
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using aoc2018.Code;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace aoc2018.Test
+{
+    public class Test10
+    {
+        private readonly ITestOutputHelper _output;
+
+        public Test10(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
+        [Fact]
+        public void Test1()
+        {
+            var data = new List<string>
+            {
+                "position=< 9,  1> velocity=< 0,  2>",
+                "position=< 7,  0> velocity=<-1,  0>",
+                "position=< 3, -2> velocity=<-1,  1>",
+                "position=< 6, 10> velocity=<-2, -1>",
+                "position=< 2, -4> velocity=< 2,  2>",
+                "position=<-6, 10> velocity=< 2, -2>",
+                "position=< 1,  8> velocity=< 1, -1>",
+                "position=< 1,  7> velocity=< 1,  0>",
+                "position=<-3, 11> velocity=< 1, -2>",
+                "position=< 7,  6> velocity=<-1, -1>",
+                "position=<-2,  3> velocity=< 1,  0>",
+                "position=<-4,  3> velocity=< 2,  0>",
+                "position=<10, -3> velocity=<-1,  1>",
+                "position=< 5, 11> velocity=< 1, -2>",
+                "position=< 4,  7> velocity=< 0, -1>",
+                "position=< 8, -2> velocity=< 0,  1>",
+                "position=<15,  0> velocity=<-2,  0>",
+                "position=< 1,  6> velocity=< 1,  0>",
+                "position=< 8,  9> velocity=< 0, -1>",
+                "position=< 3,  3> velocity=<-1,  1>",
+                "position=< 0,  5> velocity=< 0, -1>",
+                "position=<-2,  2> velocity=< 2,  0>",
+                "position=< 5, -2> velocity=< 1,  2>",
+                "position=< 1,  4> velocity=< 2,  1>",
+                "position=<-2,  7> velocity=< 2, -2>",
+                "position=< 3,  6> velocity=<-1, -1>",
+                "position=< 5,  0> velocity=< 1,  0>",
+                "position=<-6,  0> velocity=< 2,  0>",
+                "position=< 5,  9> velocity=< 1, -2>",
+                "position=<14,  7> velocity=<-2,  0>",
+                "position=<-3,  6> velocity=< 2, -1>",
+            };
+            var result = Day10.Solve1(data, out _);
+            Assert.Equal(3, result);
+        }
+        
+        [Fact]
+        public void Solve1()
+        {
+            var data = File.ReadAllLines("C:\\Code\\aoc2018\\aoc2018\\Data\\input10.txt").ToList();
+            var result = Day10.Solve1(data, out var text);
+            _output.WriteLine(result.ToString());
+            _output.WriteLine(text);
+        }
+    }
+}
