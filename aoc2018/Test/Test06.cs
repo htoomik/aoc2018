@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using aoc2018.Code;
@@ -36,7 +35,6 @@ namespace aoc2018.Test
         [Fact]
         public void Solve1()
         {
-            Trace.Listeners.Add(new DefaultTraceListener());
             var data = File.ReadAllLines("C:\\Code\\aoc2018\\aoc2018\\Data\\input06.txt").ToList();
             var result = Day06.Solve1(data);
             _output.WriteLine(result.ToString());

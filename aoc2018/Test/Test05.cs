@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using aoc2018.Code;
 using Xunit;
 using Xunit.Abstractions;

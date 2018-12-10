@@ -30,7 +30,6 @@ namespace aoc2018.Test
         [Fact]
         public void Solve1()
         {
-            Trace.Listeners.Add(new DefaultTraceListener());
             var result = Day09_Custom.Solve(400, 71864);
             _output.WriteLine(result.ToString());
         }
@@ -38,7 +37,6 @@ namespace aoc2018.Test
         [Fact]
         public void Solve2()
         {
-            Trace.Listeners.Add(new DefaultTraceListener());
             var result = Day09_Custom.Solve(400, 7186400);
             _output.WriteLine(result.ToString());
         }
