@@ -25,7 +25,7 @@ namespace aoc2018.Code
 
                 if (allPassedOrigin.HasValue && seconds - allPassedOrigin > 20)
                 {
-                    Print(lights, "ex");
+                    Print(lights);
                     throw new Exception("All lights have crossed origin and still no solution");
                 }
             }
@@ -33,11 +33,6 @@ namespace aoc2018.Code
             result = Print(lights);
 
             return seconds;
-        }
-
-        public static int Solve2(List<string> data)
-        {
-            return 0;
         }
 
         private static bool Done(List<Light> lights)
@@ -73,7 +68,7 @@ namespace aoc2018.Code
             return xNeighbor || yNeighbor || corner;
         }
 
-        private static string Print(List<Light> lights, string suffix = null)
+        private static string Print(List<Light> lights)
         {
             var minX = lights.Min(p => p.PosX);
             var maxX = lights.Max(p => p.PosX);
@@ -126,15 +121,14 @@ namespace aoc2018.Code
 
         private class Light
         {
-            public bool PassedOrigin { get; set; }
+            public bool PassedOrigin { get; private set; }
+            public int PosX { get; private set; }
+            public int PosY { get; private set; }
 
             private int OriginalX { get; }
             private int OriginalY { get; }
-
-            public int PosX { get; set; }
-            public int PosY { get; set; }
-            public int VelX { get; set; }
-            public int VelY { get; set; }
+            private int VelX { get; }
+            private int VelY { get; }
 
             public Light(int posX, int posY, int velX, int velY)
             {
@@ -157,13 +151,6 @@ namespace aoc2018.Code
                 if (Math.Sign(PosY) != Math.Sign(OriginalY))
                     PassedOrigin = true;
             }
-        }
-
-        private enum Doneness
-        {
-            Yes,
-            No,
-            Maybe
         }
     }
 }
