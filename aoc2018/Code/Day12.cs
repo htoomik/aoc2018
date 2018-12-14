@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace aoc2018.Code
@@ -10,16 +9,33 @@ namespace aoc2018.Code
         {
             var (plants, rules) = Parse(input);
 
-            var maxIterations = 120;
-            var iterations = Math.Min(maxIterations, generations);
-            for (var i = 0; i < iterations; i++)
+            long sum = 0;
+            long previousSum = 0;
+            var recentDiffs = new List<long> { 1, 2, 3, 4, 5 };
+            var stabilized = false;
+
+            int i;
+            for (i = 0; i < generations; i++)
             {
                 plants = Spread(plants, rules);
+                sum = Sum(plants);
+                var diff = sum - previousSum;
+                previousSum = sum;
+                recentDiffs.RemoveAt(0);
+                recentDiffs.Add(diff);
+
+                if (recentDiffs.Distinct().Count() == 1)
+                {
+                    stabilized = true;
+                    break;
+                }
             }
 
-            long sum = Sum(plants);
-
-            sum += (generations - iterations) * 42;
+            if (stabilized)
+            {
+                var remainingIterations = generations - i - 1;
+                sum += remainingIterations * recentDiffs[0];
+            }
 
             return sum;
         }
