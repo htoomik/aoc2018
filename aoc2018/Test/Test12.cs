@@ -71,6 +71,15 @@ namespace aoc2018.Test
         }
 
         [Fact]
+        public void Test2()
+        {
+            var input = File.ReadAllLines("C:\\Code\\aoc2018\\aoc2018\\Data\\input12.txt").ToList();
+            var result = Day12.Solve1(input, 500);
+            // var result = Day12.Solve1(input, 50000000000);
+            Assert.Equal(21428, result);
+        }
+
+        [Fact]
         public void Solve2()
         {
             var input = File.ReadAllLines("C:\\Code\\aoc2018\\aoc2018\\Data\\input12.txt").ToList();

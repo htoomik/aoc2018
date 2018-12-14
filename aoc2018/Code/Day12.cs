@@ -1,19 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace aoc2018.Code
 {
     class Day12
     {
-        public static int Solve1(List<string> input, long generations)
+        public static long Solve1(List<string> input, long generations)
         {
             var (plants, rules) = Parse(input);
 
-            for (var i = 0; i < generations; i++)
+            var maxIterations = 120;
+            var iterations = Math.Min(maxIterations, generations);
+            for (var i = 0; i < iterations; i++)
             {
                 plants = Spread(plants, rules);
             }
 
+            long sum = Sum(plants);
+
+            sum += (generations - iterations) * 42;
+
+            return sum;
+        }
+
+        private static int Sum(Dictionary<int, bool> plants)
+        {
             var sum = 0;
             foreach (var plant in plants)
             {
