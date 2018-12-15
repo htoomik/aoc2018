@@ -24,6 +24,7 @@ namespace aoc2018.Code.Day15
                 var aborted = false;
                 foreach (var unit in sortedUnits)
                 {
+                    // Dead units are removed from the main Units list but not from sortedUnits
                     if (unit.HitPoints < 0)
                         break;
 
@@ -117,7 +118,7 @@ namespace aoc2018.Code.Day15
                 }
             }
 
-            return eligibleNeighbours.OrderBy(c => c.Row).ThenBy(c => c.Col).First();
+            return eligibleNeighbours.TopLeft();
         }
 
         public string Print()
@@ -163,7 +164,7 @@ namespace aoc2018.Code.Day15
 
             var lowestHitPoints = adjacentEnemies.Min(u => u.HitPoints);
             var weakestEnemies = adjacentEnemies.Where(u => u.HitPoints == lowestHitPoints);
-            var topLeftEnemy = weakestEnemies.TopLeftUnit();
+            var topLeftEnemy = weakestEnemies.TopLeft();
             return topLeftEnemy;
         }
     }

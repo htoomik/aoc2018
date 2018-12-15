@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -56,7 +55,7 @@ namespace aoc2018.Code.Day15
             var routes = GetRoutes(reachableTargets);
             var minLength = routes.Min(r => r.Length);
             var closestTargets = routes.Where(r => r.Length == minLength);
-            var closestTarget = closestTargets.Select(r => r.Target).OrderBy(e => e.Row).ThenBy(e => e.Col).First();
+            var closestTarget = closestTargets.Select(r => r.Target).TopLeft();
 
             routeLength = minLength;
             target = closestTarget;

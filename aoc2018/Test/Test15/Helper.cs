@@ -16,7 +16,7 @@ namespace aoc2018.Test.Test15
         public static Unit TopLeftElf(Engine engine, int index = 0)
         {
             var elves = engine.Units.Where(u => u.Race == Race.Elf);
-            var attackingElf = elves.TopLeftUnit(index);
+            var attackingElf = elves.TopLeft(index);
             return attackingElf;
         }
     }

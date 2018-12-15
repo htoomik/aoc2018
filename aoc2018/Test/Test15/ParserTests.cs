@@ -30,7 +30,7 @@ namespace aoc2018.Test.Test15
             Assert.Equal(3, units.Count(u => u.Race == Race.Goblin));
             Assert.Equal(4, units.Count(u => u.Race == Race.Elf));
 
-            var sorted = units.OrderBy(u => u.Row).ThenBy(u => u.Col).ToList();
+            var sorted = units.InReadingOrder();
 
             var firt = sorted[0];
             Assert.Equal(1, firt.Row);
