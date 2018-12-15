@@ -197,7 +197,18 @@ namespace aoc2018.Test.Test15
             var engine = Helper.CreateEngine(map);
 
             engine.RunGame();
-            _output.WriteLine(engine.Print());
+
+            var finalState = engine.Print();
+            var expectedState = @"
+#######
+#...#E#
+#E#...#
+#.E##.#
+#E..#E#
+#.....#
+#######";
+            _output.WriteLine(finalState);
+            Assert.Equal(expectedState.Trim(), finalState.Trim());
 
             Assert.Equal(37, engine.Rounds);
             Assert.Equal(982, engine.Units.Sum(u => u.HitPoints));
@@ -303,6 +314,89 @@ namespace aoc2018.Test.Test15
             var remainingHitPoints = engine.Units.InReadingOrder().Select(u => u.HitPoints).ToArray();
             var expected = new[] { 137, 200, 200, 200, 200 };
             Assert.Equal(expected, remainingHitPoints);
+        }
+
+        [Fact]
+        public void RedditExample_1()
+        {
+            const string map = @"
+####
+##E#
+#GG#
+####";
+
+            var engine = Helper.CreateEngine(map);
+
+            engine.RunGame();
+
+            Assert.Equal(67, engine.Rounds);
+        }
+
+        [Fact]
+        public void RedditExample_2()
+        {
+            const string map = @"
+#####
+#GG##
+#.###
+#..E#
+#.#G#
+#.E##
+#####";
+
+            var engine = Helper.CreateEngine(map);
+
+            engine.RunGame(1);
+            engine.RunGame(2);
+            engine.RunGame(67);
+            engine.RunGame();
+
+            Assert.Equal(71, engine.Rounds);
+        }
+
+        [Fact]
+        public void RedditExample_3()
+        {
+            const string map = @"
+################################
+#################.....##########
+#################..#.###########
+#################.........######
+##################......########
+#################G.GG###########
+###############...#..###########
+###############......G..########
+############..G.........########
+##########.G.....G......########
+##########......#.........#..###
+##########...................###
+#########G..G.#####....E.G.E..##
+######..G....#######...........#
+#######.....#########.........##
+#######..#..#########.....#.####
+##########..#########..G.##..###
+###########G#########...E...E.##
+#########.G.#########..........#
+#########GG..#######.......##.E#
+######.G......#####...##########
+#...##..G..............#########
+#...#...........###..E.#########
+#.G.............###...##########
+#................###############
+##.........E.....###############
+###.#..............#############
+###..G........E.....############
+###......E..........############
+###......#....#E#...############
+###....####.#...##.#############
+################################";
+
+            var engine = Helper.CreateEngine(map);
+
+            engine.RunGame();
+
+            Assert.Equal(68, engine.Rounds);
+            Assert.Equal(2812, engine.Units.Sum(u => u.HitPoints));
         }
     }
 }
