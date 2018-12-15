@@ -4,6 +4,6 @@
     {
         public int Length { get; set; }
         public Coords FirstStep { get; }
-        public Coords End { get; }
+        public Coords Target { get; set; }
     }
 }

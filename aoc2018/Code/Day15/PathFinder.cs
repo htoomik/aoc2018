@@ -126,7 +126,11 @@ while not frontier.empty():
                 }
             }
 
-            return new Route { Length = costSoFar[current] };
+            return new Route
+            {
+                Target = target,
+                Length = costSoFar[current]
+            };
         }
     }
 }

@@ -152,6 +152,13 @@ G....
              */
 
             Assert.Equal(5, shortestRoute.Length);
+            Assert.Equal(target, shortestRoute.Target);
+        }
+
+        [Fact]
+        public void FindAllRoutes()
+        {
+
         }
     }
 }

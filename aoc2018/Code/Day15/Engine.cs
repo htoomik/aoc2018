@@ -80,5 +80,10 @@ namespace aoc2018.Code.Day15
         {
             return PathFinder.FindShortestRoute(coords, target, _walls, Units);
         }
+
+        public List<Route> FindAllRoutes(Unit unit, Coords target, int length)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

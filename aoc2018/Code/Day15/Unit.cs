@@ -30,20 +30,28 @@ namespace aoc2018.Code.Day15
             if (targetsInRange.Any())
                 return;
 
-            var theRoute = ChooseRoute();
+            var (target, routeLength) = ChooseTarget();
+            var theRoute = ChooseRoute(target, routeLength);
             Step(theRoute);
         }
 
-        public Route ChooseRoute()
+        public Route ChooseRoute(Coords target, int routeLength)
+        {
+            var shortestRoutes = _engine.FindAllRoutes(this, target, routeLength);
+            var theRoute = shortestRoutes.OrderBy(r => r.FirstStep.Row).ThenBy(r => r.FirstStep.Col).First();
+            return theRoute;
+        }
+
+        public (Coords target, int routeLength) ChooseTarget()
         {
             var enemies = _engine.GetAllEnemies(this);
             var moveTargets = _engine.GetSquaresInRangeOf(enemies);
             var reachableTargets = _engine.GetReachableTargets(this, moveTargets);
             var routes = GetRoutes(reachableTargets);
             var minLength = routes.Min(r => r.Length);
-            var shortestRoutes = routes.Where(r => r.Length == minLength).ToList();
-            var theRoute = shortestRoutes.OrderBy(r => r.FirstStep.Row).ThenBy(r => r.FirstStep.Col).First();
-            return theRoute;
+            var closestTargets = routes.Where(r => r.Length == minLength);
+            var topLeftTarget = closestTargets.Select(r => r.Target).OrderBy(e => e.Row).ThenBy(e => e.Col).First();
+            return (topLeftTarget, minLength);
         }
 
         private void Step(Route route)
