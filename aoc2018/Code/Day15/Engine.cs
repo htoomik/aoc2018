@@ -73,17 +73,29 @@ namespace aoc2018.Code.Day15
 
         public List<Coords> GetReachableTargets(Unit unit, IEnumerable<Coords> moveTargets)
         {
-            return PathFinder.GetReachableTargets(_walls, Units, new Coords(unit.Row, unit.Col), moveTargets);
+            return PathFinder.GetReachableTargets(_walls, Units, unit.GetCoords(), moveTargets);
         }
 
-        public Route FindShortestRoute(Coords coords, Coords target)
+        public Route FindShortestRoute(Unit unit, Coords target)
         {
-            return PathFinder.FindShortestRoute(coords, target, _walls, Units);
+            return PathFinder.FindShortestRoute(unit.GetCoords(), target, _walls, Units);
         }
 
-        public List<Route> FindAllRoutes(Unit unit, Coords target, int length)
+        public Coords ChooseNextStepTowards(Unit unit, Coords target, int routeLength)
         {
-            throw new NotImplementedException();
+            var freeNeighbours = PathFinder.GetFreeNeighbours(unit.GetCoords(), _walls, Units);
+            var eligibleNeighbours = new List<Coords>();
+
+            foreach (var neighbour in freeNeighbours)
+            {
+                var shortestRoute = PathFinder.FindShortestRoute(neighbour, target, _walls, Units);
+                if (shortestRoute.Length == routeLength - 1)
+                {
+                    eligibleNeighbours.Add(neighbour);
+                }
+            }
+
+            return eligibleNeighbours.OrderBy(c => c.Row).ThenBy(c => c.Col).First();
         }
     }
 }

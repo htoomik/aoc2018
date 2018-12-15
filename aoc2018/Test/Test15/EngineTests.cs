@@ -138,9 +138,9 @@ G....
 #...G.#
 #######";
             var engine = Helper.CreateEngine(map);
-            var startFrom = new Coords(1, 2);   // Where the elf is
-            var target = new Coords(3, 5);      // Bottom right corner
-            var shortestRoute = engine.FindShortestRoute(startFrom, target);
+            var elf = new Unit(1, 2, Race.Elf);
+            var target = new Coords(3, 5); // Bottom right corner
+            var shortestRoute = engine.FindShortestRoute(elf, target);
 
             /*
              Expected:
@@ -153,12 +153,6 @@ G....
 
             Assert.Equal(5, shortestRoute.Length);
             Assert.Equal(target, shortestRoute.Target);
-        }
-
-        [Fact]
-        public void FindAllRoutes()
-        {
-
         }
     }
 }

@@ -32,31 +32,31 @@ namespace aoc2018.Test.Test15
         }
 
         [Fact]
-        public void Move()
+        public void ChooseNextStep()
         {
             const string map = @"
 #######
-#E..G.#
-#...#.#
-#.G.#G#
+#.E...#
+#.....#
+#...G.#
 #######";
             var engine = Helper.CreateEngine(map);
             var elf = Helper.TopLeftElf(engine);
             var (target, routeLength) = elf.ChooseTarget();
-            var route = elf.ChooseRoute(target, routeLength);
-            var routeEnd = route.Target;
+            var nextStep = engine.ChooseNextStepTowards(elf, target, routeLength);
 
             /*
              Expected:
-                #######
-                #E.+G.#
-                #...#.#
-                #.G.#G#
-                #######
+                In range:     Nearest:      Chosen:       Distance:     Step:
+                #######       #######       #######       #######       #######
+                #.E...#       #.E...#       #.E...#       #4E212#       #..E..#
+                #...?.#  -->  #...!.#  -->  #...+.#  -->  #32101#  -->  #.....#
+                #..?G?#       #..!G.#       #...G.#       #432G2#       #...G.#
+                #######       #######       #######       #######       #######
              */
 
-            Assert.Equal(1, routeEnd.Row);
-            Assert.Equal(3, routeEnd.Col);
+            Assert.Equal(1, nextStep.Row);
+            Assert.Equal(3, nextStep.Col);
         }
     }
 }

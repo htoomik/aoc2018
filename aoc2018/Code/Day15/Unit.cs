@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace aoc2018.Code.Day15
 {
     public class Unit
     {
-        public int Row { get; }
-        public int Col { get; }
+        public int Row { get; private set; }
+        public int Col { get; private set; }
         public Race Race { get; }
         public int HitPoints { get; }
 
@@ -31,15 +30,8 @@ namespace aoc2018.Code.Day15
                 return;
 
             var (target, routeLength) = ChooseTarget();
-            var theRoute = ChooseRoute(target, routeLength);
-            Step(theRoute);
-        }
-
-        public Route ChooseRoute(Coords target, int routeLength)
-        {
-            var shortestRoutes = _engine.FindAllRoutes(this, target, routeLength);
-            var theRoute = shortestRoutes.OrderBy(r => r.FirstStep.Row).ThenBy(r => r.FirstStep.Col).First();
-            return theRoute;
+            var nextStep = _engine.ChooseNextStepTowards(this, target, routeLength);
+            Step(nextStep);
         }
 
         public (Coords target, int routeLength) ChooseTarget()
@@ -54,18 +46,18 @@ namespace aoc2018.Code.Day15
             return (topLeftTarget, minLength);
         }
 
-        private void Step(Route route)
+        private void Step(Coords coords)
         {
-            throw new NotImplementedException();
+            Row = coords.Row;
+            Col = coords.Col;
         }
 
         private List<Route> GetRoutes(List<Coords> targets)
         {
             var routes = new List<Route>();
-            var coords = new Coords(Row, Col);
             foreach (var target in targets)
             {
-                routes.Add(_engine.FindShortestRoute(coords, target));
+                routes.Add(_engine.FindShortestRoute(this, target));
             }
 
             return routes;
@@ -84,6 +76,11 @@ namespace aoc2018.Code.Day15
         private void Attack(Unit target)
         {
             throw new NotImplementedException();
+        }
+
+        public Coords GetCoords()
+        {
+            return new Coords(Row, Col);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace aoc2018.Code.Day15
             }
         }
 
-        private static IEnumerable<Coords> GetFreeNeighbours(Coords coords, bool[,] walls, List<Unit> units)
+        public static IEnumerable<Coords> GetFreeNeighbours(Coords coords, bool[,] walls, List<Unit> units)
         {
             return GetNeighbours(coords)
                 .Where(neighbour => WithinBounds(walls, neighbour) && 
@@ -73,40 +73,13 @@ namespace aoc2018.Code.Day15
 
         public static Route FindShortestRoute(Coords startFrom, Coords target, bool[,] walls, List<Unit> units)
         {
-            /*
-frontier = PriorityQueue()
-frontier.put(start, 0)
-came_from = {}
-cost_so_far = {}
-came_from[start] = None
-cost_so_far[start] = 0
-
-while not frontier.empty():
-   current = frontier.get()
-
-   if current == goal:
-      break
-   
-   for next in graph.neighbors(current):
-      new_cost = cost_so_far[current] + graph.cost(current, next)
-      if next not in cost_so_far or new_cost < cost_so_far[next]:
-         cost_so_far[next] = new_cost
-         priority = new_cost + heuristic(goal, next)
-         frontier.put(next, priority)
-         came_from[next] = current
-             */
-
             var frontier = new PriorityQueue<Coords>();
+            var costSoFar = new Dictionary<Coords, int> { [startFrom] = 0 };
+
             frontier.Enqueue(startFrom, 0);
-            var cameFrom = new Dictionary<Coords, Coords>();
-            var costSoFar = new Dictionary<Coords, int>();
-
-            costSoFar[startFrom] = 0;
-
-            var current = new Coords(-1, -1);
             while (!frontier.IsEmpty())
             {
-                current = frontier.Dequeue();
+                var current = frontier.Dequeue();
                 if (current.Equals(target))
                 {
                     break;
@@ -121,7 +94,6 @@ while not frontier.empty():
                         costSoFar[next] = newCost;
                         var priority = newCost + (target.Row - next.Row) + (target.Col - next.Col);
                         frontier.Enqueue(next, priority);
-                        cameFrom[next] = current;
                     }
                 }
             }
@@ -129,8 +101,13 @@ while not frontier.empty():
             return new Route
             {
                 Target = target,
-                Length = costSoFar[current]
+                Length = costSoFar[target]
             };
+        }
+
+        public static List<Route> FindAllRoutes(Coords startFrom, Coords target, int length)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
