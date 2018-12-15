@@ -1,5 +1,8 @@
-﻿namespace aoc2018.Code.Day15
+﻿using System.Diagnostics;
+
+namespace aoc2018.Code.Day15
 {
+    [DebuggerDisplay("{Row}, {Col}")]
     public struct Coords
     {
         public int Row { get; }
@@ -9,6 +12,12 @@
         {
             Row = row;
             Col = col;
+        }
+
+        public bool Equals(Coords other)
+        {
+            return Row == other.Row &&
+                   Col == other.Col;
         }
     }
 }

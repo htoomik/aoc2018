@@ -53,7 +53,14 @@ namespace aoc2018.Code.Day15
 
         private List<Route> GetRoutes(List<Coords> targets)
         {
-            throw new NotImplementedException();
+            var routes = new List<Route>();
+            var coords = new Coords(Row, Col);
+            foreach (var target in targets)
+            {
+                routes.Add(_engine.FindShortestRoute(coords, target));
+            }
+
+            return routes;
         }
 
         public void Attack()

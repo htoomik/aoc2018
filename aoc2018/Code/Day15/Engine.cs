@@ -68,12 +68,17 @@ namespace aoc2018.Code.Day15
 
         private bool IsFree(Coords coords)
         {
-            return !_walls[coords.Row, coords.Col];
+            return PathFinder.IsFree(_walls, Units, coords);
         }
 
         public List<Coords> GetReachableTargets(Unit unit, IEnumerable<Coords> moveTargets)
         {
-            throw new NotImplementedException();
+            return PathFinder.GetReachableTargets(_walls, Units, new Coords(unit.Row, unit.Col), moveTargets);
+        }
+
+        public Route FindShortestRoute(Coords coords, Coords target)
+        {
+            return PathFinder.FindShortestRoute(coords, target, _walls, Units);
         }
     }
 }
