@@ -16,7 +16,7 @@ G....
 ..G..
 ...G.";
             var engine = Helper.CreateEngine(map);
-            var attackingElf = Helper.TopLeftElf(engine);
+            var attackingElf = Helper.TopLeftElf(engine, 1);
 
             var enemies = engine.GetAdjacentEnemies(attackingElf);
             Assert.Equal(3, enemies.Count);
@@ -153,6 +153,73 @@ G....
 
             Assert.Equal(5, shortestRoute.Length);
             Assert.Equal(target, shortestRoute.Target);
+        }
+
+        [Fact]
+        public void Print()
+        {
+            const string map = @"
+#######
+#E..G.#
+#...#.#
+#.G.#G#
+#######";
+            var engine = Helper.CreateEngine(map);
+            var printed = engine.Print();
+            Assert.Equal(map.Trim(), printed.Trim());
+        }
+        
+        [Fact]
+        public void Movements_3()
+        {
+            const string map = @"
+#########
+#G..G..G#
+#.......#
+#.......#
+#G..E..G#
+#.......#
+#.......#
+#G..G..G#
+#########";
+            var engine = Helper.CreateEngine(map);
+            engine.RunGame(3);
+
+            var result = engine.Print();
+            const string expected = @"
+#########
+#.......#
+#..GGG..#
+#..GEG..#
+#G..G...#
+#......G#
+#.......#
+#.......#
+#########";
+            Assert.Equal(expected.Trim(), result.Trim());
+        }
+
+        [Fact]
+        public void ChooseAttackTarget()
+        {
+            const string map = @"
+G....
+..G..
+..EG.
+..G..
+...G.";
+            var engine = Helper.CreateEngine(map);
+            var goblins = engine.Units.Where(u => u.Race == Race.Goblin).ToList();
+            goblins.Single(u => u.Row == 0).HitPoints = 9;
+            goblins.Single(u => u.Row == 1).HitPoints = 4;
+            goblins.Single(u => u.Row == 2).HitPoints = 2;
+            goblins.Single(u => u.Row == 3).HitPoints = 2;
+            goblins.Single(u => u.Row == 4).HitPoints = 1;
+
+            var elf = engine.Units.Single(u => u.Race == Race.Elf);
+
+            var attackTarget = engine.ChooseAttackTarget(elf);
+            Assert.Equal(2, attackTarget.Row);
         }
     }
 }

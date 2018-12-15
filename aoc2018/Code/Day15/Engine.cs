@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace aoc2018.Code.Day15
 {
@@ -8,25 +9,44 @@ namespace aoc2018.Code.Day15
     {
         private bool[,] _walls;
         public List<Unit> Units { get; private set; }
+        public int Rounds;
 
         public void Initialize(List<string> input)
         {
             (_walls, Units) = Parser.Parse(input, this);
         }
 
-        public string RunGame()
+        public void RunGame(int? rounds = null)
         {
             while (true)
             {
-                var sortedUnits = Units.OrderBy(p => p.Row).ThenBy(p => p.Col);
+                var sortedUnits = Units.InReadingOrder();
+                var aborted = false;
                 foreach (var unit in sortedUnits)
                 {
+                    if (unit.HitPoints < 0)
+                        break;
+
+                    var enemyCount = Units.Count(u => u.Race != unit.Race);
+                    if (enemyCount == 0)
+                    {
+                        aborted = true;
+                        break;
+                    }
+                    
                     unit.Move();
-                }
-                foreach (var unit in sortedUnits)
-                {
                     unit.Attack();
                 }
+
+                if (aborted)
+                {
+                    break;
+                }
+
+                Rounds++;
+                
+                if (rounds.HasValue && rounds == Rounds)
+                    break;
             }
         }
 
@@ -43,7 +63,7 @@ namespace aoc2018.Code.Day15
             return Units.Where(u => u.Race != unit.Race).ToList();
         }
 
-        public IEnumerable<Coords> GetSquaresInRangeOf(List<Unit> enemies)
+        public HashSet<Coords> GetSquaresInRangeOf(List<Unit> enemies)
         {
             var squaresInRange = new HashSet<Coords>();
             foreach (var enemy in enemies)
@@ -89,13 +109,62 @@ namespace aoc2018.Code.Day15
             foreach (var neighbour in freeNeighbours)
             {
                 var shortestRoute = PathFinder.FindShortestRoute(neighbour, target, _walls, Units);
-                if (shortestRoute.Length == routeLength - 1)
+                
+                // Some first steps will not lead to the target at all
+                if (shortestRoute != null && shortestRoute.Length == routeLength - 1)
                 {
                     eligibleNeighbours.Add(neighbour);
                 }
             }
 
             return eligibleNeighbours.OrderBy(c => c.Row).ThenBy(c => c.Col).First();
+        }
+
+        public string Print()
+        {
+            var maxI = _walls.GetLength(0);
+            var maxJ = _walls.GetLength(1);
+            var map = new char[maxI, maxJ];
+
+            for (int i = 0; i < maxI; i++)
+            {
+                for (int j = 0; j < maxJ; j++)
+                {
+
+                    map[i, j] = _walls[i, j] ? '#' : '.';
+                }
+            }
+
+            foreach (var unit in Units)
+            {
+                map[unit.Row, unit.Col] = unit.Race == Race.Elf ? 'E' : 'G';
+            }
+            
+            var sb = new StringBuilder();
+            for (int i = 0; i < maxI; i++)
+            {
+                for (int j = 0; j < maxJ; j++)
+                {
+                    sb.Append(map[i, j]);
+                }
+
+                sb.AppendLine();
+            }
+
+            var print = sb.ToString();
+            return print;
+        }
+
+        public Unit ChooseAttackTarget(Unit attackingUnit)
+        {
+            var adjacentEnemies = GetAdjacentEnemies(attackingUnit);
+            if (!adjacentEnemies.Any())
+                return null;
+
+            var lowestHitPoints = adjacentEnemies.Min(u => u.HitPoints);
+            var weakestEnemies = adjacentEnemies.Where(u => u.HitPoints == lowestHitPoints);
+            var topLeftEnemy = weakestEnemies.TopLeftUnit();
+            return topLeftEnemy;
         }
     }
 }

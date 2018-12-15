@@ -98,6 +98,11 @@ namespace aoc2018.Code.Day15
                 }
             }
 
+            if (!costSoFar.ContainsKey(target))
+            {
+                return null;
+            }
+
             return new Route
             {
                 Target = target,

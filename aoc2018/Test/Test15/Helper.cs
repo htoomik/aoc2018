@@ -13,10 +13,10 @@ namespace aoc2018.Test.Test15
             return engine;
         }
 
-        public static Unit TopLeftElf(Engine engine)
+        public static Unit TopLeftElf(Engine engine, int index = 0)
         {
             var elves = engine.Units.Where(u => u.Race == Race.Elf);
-            var attackingElf = elves.OrderBy(e => e.Row).ThenBy(e => e.Col).Last();
+            var attackingElf = elves.TopLeftUnit(index);
             return attackingElf;
         }
     }

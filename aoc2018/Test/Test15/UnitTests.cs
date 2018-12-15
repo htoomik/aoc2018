@@ -15,7 +15,7 @@ namespace aoc2018.Test.Test15
 #######";
             var engine = Helper.CreateEngine(map);
             var elf = Helper.TopLeftElf(engine);
-            var (target, routeLength) = elf.ChooseTarget();
+            var canMove = elf.ChooseTarget(out var target, out var routeLength);
 
             /*
              Expected:
@@ -26,8 +26,9 @@ namespace aoc2018.Test.Test15
                 #######
              */
 
-            Assert.Equal(1, target.Row);
-            Assert.Equal(3, target.Col);
+            Assert.True(canMove);
+            Assert.Equal(1, target.Value.Row);
+            Assert.Equal(3, target.Value.Col);
             Assert.Equal(2, routeLength);
         }
 
@@ -42,8 +43,8 @@ namespace aoc2018.Test.Test15
 #######";
             var engine = Helper.CreateEngine(map);
             var elf = Helper.TopLeftElf(engine);
-            var (target, routeLength) = elf.ChooseTarget();
-            var nextStep = engine.ChooseNextStepTowards(elf, target, routeLength);
+            elf.ChooseTarget(out var target, out var routeLength);
+            var nextStep = engine.ChooseNextStepTowards(elf, target.Value, routeLength.Value);
 
             /*
              Expected:

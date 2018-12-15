@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace aoc2018.Code.Day15
 {
+    [DebuggerDisplay("{Race} {Row},{Col} - {HitPoints}")]
     public class Unit
     {
         public int Row { get; private set; }
         public int Col { get; private set; }
         public Race Race { get; }
-        public int HitPoints { get; }
+        public int HitPoints { get; set; }
 
         private readonly Engine _engine;
 
@@ -29,21 +31,36 @@ namespace aoc2018.Code.Day15
             if (targetsInRange.Any())
                 return;
 
-            var (target, routeLength) = ChooseTarget();
-            var nextStep = _engine.ChooseNextStepTowards(this, target, routeLength);
+            var canMove = ChooseTarget(out var target, out var routeLength);
+            if (!canMove)
+                return;
+
+            var nextStep = _engine.ChooseNextStepTowards(this, target.Value, routeLength.Value);
             Step(nextStep);
         }
 
-        public (Coords target, int routeLength) ChooseTarget()
+        public bool ChooseTarget(out Coords? target, out int? routeLength)
         {
+            target = null;
+            routeLength = null;
+
             var enemies = _engine.GetAllEnemies(this);
             var moveTargets = _engine.GetSquaresInRangeOf(enemies);
+            if (!moveTargets.Any())
+                return false;
+
             var reachableTargets = _engine.GetReachableTargets(this, moveTargets);
+            if (!reachableTargets.Any())
+                return false;
+
             var routes = GetRoutes(reachableTargets);
             var minLength = routes.Min(r => r.Length);
             var closestTargets = routes.Where(r => r.Length == minLength);
-            var topLeftTarget = closestTargets.Select(r => r.Target).OrderBy(e => e.Row).ThenBy(e => e.Col).First();
-            return (topLeftTarget, minLength);
+            var closestTarget = closestTargets.Select(r => r.Target).OrderBy(e => e.Row).ThenBy(e => e.Col).First();
+
+            routeLength = minLength;
+            target = closestTarget;
+            return true;
         }
 
         private void Step(Coords coords)
@@ -65,17 +82,18 @@ namespace aoc2018.Code.Day15
 
         public void Attack()
         {
-            var targetsInRange = _engine.GetAdjacentEnemies(this);
-            if (!targetsInRange.Any())
-                return;
-
-            var theTarget = targetsInRange.OrderBy(t => t.HitPoints).ThenBy(t => t.Row).ThenBy(t => t.Col).First();
-            Attack(theTarget);
+            var theTarget = _engine.ChooseAttackTarget(this);
+            if (theTarget != null)
+                Attack(theTarget);
         }
 
         private void Attack(Unit target)
         {
-            throw new NotImplementedException();
+            target.HitPoints -= 3;
+            if (target.HitPoints < 0)
+            {
+                _engine.Units.Remove(target);
+            }
         }
 
         public Coords GetCoords()
