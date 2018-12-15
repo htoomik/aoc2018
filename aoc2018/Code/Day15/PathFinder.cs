@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace aoc2018.Code.Day15
@@ -73,11 +74,29 @@ namespace aoc2018.Code.Day15
 
         public static Route FindShortestRoute(Coords startFrom, Coords target, bool[,] walls, List<Unit> units)
         {
-            var frontier = new PriorityQueue<Coords>();
-            var costSoFar = new Dictionary<Coords, int> { [startFrom] = 0 };
+           /*
+            frontier = Queue()
+            frontier.put(start)
+            came_from = {}
+            came_from[start] = None
 
-            frontier.Enqueue(startFrom, 0);
-            while (!frontier.IsEmpty())
+            while not frontier.empty():
+               current = frontier.get()
+
+               if current == goal: 
+                  break
+
+               for next in graph.neighbors(current):
+                  if next not in came_from:
+                     frontier.put(next)
+                     came_from[next] = current
+            */
+            
+            var frontier = new Queue<Coords>();
+            var cameFrom = new Dictionary<Coords, Coords?> { [startFrom] = null };
+
+            frontier.Enqueue(startFrom);
+            while (frontier.Count != 0)
             {
                 var current = frontier.Dequeue();
                 if (current.Equals(target))
@@ -88,31 +107,32 @@ namespace aoc2018.Code.Day15
                 var neighbours = GetFreeNeighbours(current, walls, units);
                 foreach (var next in neighbours)
                 {
-                    var newCost = costSoFar[current] + 1;
-                    if (!costSoFar.ContainsKey(next) || newCost < costSoFar[next])
+                    if (!cameFrom.ContainsKey(next))
                     {
-                        costSoFar[next] = newCost;
-                        var priority = newCost + (target.Row - next.Row) + (target.Col - next.Col);
-                        frontier.Enqueue(next, priority);
+                        frontier.Enqueue(next);
+                        cameFrom[next] = current;
                     }
                 }
             }
 
-            if (!costSoFar.ContainsKey(target))
+            if (!cameFrom.ContainsKey(target))
             {
                 return null;
+            }
+
+            var length = 0;
+            Coords? backtracking = target;
+            while (backtracking != null)
+            {
+                length++;
+                backtracking = cameFrom[backtracking.Value];
             }
 
             return new Route
             {
                 Target = target,
-                Length = costSoFar[target]
+                Length = length - 1
             };
-        }
-
-        public static List<Route> FindAllRoutes(Coords startFrom, Coords target, int length)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
