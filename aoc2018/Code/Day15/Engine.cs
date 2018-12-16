@@ -7,13 +7,19 @@ namespace aoc2018.Code.Day15
 {
     public class Engine
     {
+        public const int DefaultAttackPower = 3;
+
         private bool[,] _walls;
         public List<Unit> Units { get; private set; }
         public int Rounds;
 
-        public void Initialize(List<string> input)
+        public void Initialize(List<string> input, int elfPower = DefaultAttackPower)
         {
             (_walls, Units) = Parser.Parse(input, this);
+            foreach (var unit in Units)
+            {
+                unit.AttackPower = unit.Race == Race.Elf ? elfPower : DefaultAttackPower;
+            }
         }
 
         public void RunGame(int? rounds = null)

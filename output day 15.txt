@@ -1,0 +1,59 @@
+Trying elf power 4
+Trying elf power 5
+Trying elf power 4
+Trying elf power 4
+Elves lost
+Trying elf power 5
+Trying elf power 5
+Elves lost
+Trying elf power 6
+Elves lost
+Trying elf power 7
+Elves lost
+Trying elf power 8
+Elves won, no elves died.
+Trying elf power 5
+Elves lost
+Trying elf power 6
+Elves lost
+Trying elf power 7
+Elves lost
+Trying elf power 8
+Elves won, but 8 elves died.
+Trying elf power 9
+Elves won, but 7 elves died.
+Trying elf power 10
+Elves won, but 4 elves died.
+Trying elf power 11
+Elves won, but 3 elves died.
+Trying elf power 12
+Elves won, but 1 elves died.
+Trying elf power 13
+Elves won, but 1 elves died.
+Trying elf power 14
+Elves won, but 1 elves died.
+Trying elf power 15
+Elves won, but 1 elves died.
+Trying elf power 16
+Elves won, but 1 elves died.
+Trying elf power 17
+Trying elf power 17
+Elves won, but 1 elves died.
+Trying elf power 18
+Elves won, but 1 elves died.
+Trying elf power 19
+Elves won, but 1 elves died.
+Trying elf power 20
+Elves won, but 1 elves died.
+Trying elf power 21
+Elves won, but 1 elves died.
+Trying elf power 22
+Elves won, but 1 elves died.
+Trying elf power 23
+Elves won, but 1 elves died.
+Trying elf power 24
+Elves won, but 1 elves died.
+Trying elf power 25
+Elves won, but 1 elves died.
+Trying elf power 26
+Elves won, no elves died.

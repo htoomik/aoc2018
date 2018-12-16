@@ -11,6 +11,7 @@ namespace aoc2018.Code.Day15
         public int Col { get; private set; }
         public Race Race { get; }
         public int HitPoints { get; set; }
+        public int AttackPower { get; set; }
 
         private readonly Engine _engine;
 
@@ -88,7 +89,7 @@ namespace aoc2018.Code.Day15
 
         private void Attack(Unit target)
         {
-            target.HitPoints -= 3;
+            target.HitPoints -= AttackPower;
             if (target.HitPoints < 0)
             {
                 _engine.Units.Remove(target);
