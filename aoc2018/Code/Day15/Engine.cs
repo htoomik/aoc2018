@@ -26,7 +26,7 @@ namespace aoc2018.Code.Day15
                 {
                     // Dead units are removed from the main Units list but not from sortedUnits
                     if (unit.HitPoints < 0)
-                        break;
+                        continue;
 
                     var enemyCount = Units.Count(u => u.Race != unit.Race);
                     if (enemyCount == 0)
@@ -34,7 +34,7 @@ namespace aoc2018.Code.Day15
                         aborted = true;
                         break;
                     }
-                    
+
                     unit.Move();
                     unit.Attack();
                 }
