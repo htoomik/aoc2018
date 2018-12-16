@@ -99,5 +99,10 @@ namespace aoc2018.Code.Day15
         {
             return new Coords(Row, Col);
         }
+
+        public override string ToString()
+        {
+            return Race.ToString()[0] + " " + GetCoords() + " hp=" + HitPoints;
+        }
     }
 }

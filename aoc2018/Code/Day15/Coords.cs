@@ -19,5 +19,10 @@ namespace aoc2018.Code.Day15
             return Row == other.Row &&
                    Col == other.Col;
         }
+
+        public override string ToString()
+        {
+            return "r=" + Row + " c=" + Col;
+        }
     }
 }
