@@ -19,21 +19,30 @@ namespace aoc2018.Code
             }
             else
             {
-                var waterCount = 0;
+                var standingWaterCount = 0;
+                var runningWaterCount = 0;
                 while (true)
                 {
                     AddDrop(scan, 0, 500);
-                    var newWaterCount = CountWater(scan);
-                    if (newWaterCount == waterCount)
+                    var newRunningWaterCount = Count(scan, '|');
+                    var newStandingWaterCount = Count(scan, '~');
+                    if (newRunningWaterCount == runningWaterCount &&
+                        newStandingWaterCount == standingWaterCount)
                         break;
-                    waterCount = newWaterCount;
+                    standingWaterCount = newStandingWaterCount;
+                    runningWaterCount = newRunningWaterCount;
                 }
 
-                return (scan, waterCount);
+                return (scan, standingWaterCount + runningWaterCount);
             }
         }
 
         private static int CountWater(Array scan)
+        {
+            return Count(scan, '|') + Count(scan, '~');
+        }
+
+        private static int Count(Array scan, char t)
         {
             var count = 0;
             for (int y = scan.GetLowerBound(0); y <= scan.GetUpperBound(0); y++)
@@ -41,7 +50,7 @@ namespace aoc2018.Code
                 for (int x = scan.GetLowerBound(1); x <= scan.GetUpperBound(1); x++)
                 {
                     var c = (char) scan.GetValue(y, x);
-                    if (c == '|' || c == '~')
+                    if (c == t)
                         count++;
                 }
             }
