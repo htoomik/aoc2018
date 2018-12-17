@@ -21,6 +21,10 @@ namespace aoc2018.Code
             var moved = true;
             var bottom = scan.GetUpperBound(y);
 
+            // Avoid bouncing left and right
+            var movedLeft = false;
+            var movedRight = false;
+
             while (moved)
             {
                 moved = false;
@@ -31,21 +35,41 @@ namespace aoc2018.Code
                 // Move down as far as possible
                 while (CanMoveDown(scan, y, x))
                 {
+                    movedRight = false;
+                    movedLeft = false;
                     moved = true;
                     y++;
                     scan.SetValue('|', y, x);
                 }
 
                 // Spread horizontally
-                while (CanMoveLeft(scan, y, x))
+                if (!movedRight || !HasSupport(scan, y, x))
                 {
-                    x--;
-                    scan.SetValue('|', y, x);
-                    moved = true;
+                    while (CanMoveLeft(scan, y, x))
+                    {
+                        x--;
+                        scan.SetValue('|', y, x);
+                        moved = true;
+                        movedLeft = true;
+                    }
+                }
+
+                if (!movedLeft || !HasSupport(scan, y, x))
+                {
+                    while (CanMoveRight(scan, y, x))
+                    {
+                        x++;
+                        scan.SetValue('|', y, x);
+                        moved = true;
+                        movedRight = true;
+                    }
                 }
             }
 
-            if (y != bottom)
+            if (y == bottom)
+                return;
+
+            if (HasSupport(scan, y, x))
                 scan.SetValue('~', y, x);
         }
 
@@ -72,6 +96,49 @@ namespace aoc2018.Code
 
             if (CanMoveDown(scan, y, x))
                 return false;
+
+            return true;
+        }
+
+        private static bool CanMoveRight(Array scan, int y, int x)
+        {
+            if (x == scan.GetUpperBound(1))
+                return false;
+
+            // spread until you (a) hit a wall or (b) previous water or (c) pour over an edge
+            if ((char) scan.GetValue(y, x + 1) == '#')
+                return false;
+            
+            if ((char) scan.GetValue(y, x + 1) == '~')
+                return false;
+
+            if (CanMoveDown(scan, y, x))
+                return false;
+
+            return true;
+        }
+
+        private static bool HasSupport(Array scan, int y, int x)
+        {
+            for (int i = x; i <= scan.GetUpperBound(1); i++)
+            {
+                var below = (char)scan.GetValue(y + 1, i);
+                if (below != '#' && below != '~')
+                    return false;
+
+                if ((char)scan.GetValue(y, i) == '#')
+                    break;
+            }
+
+            for (int i = x; i >- scan.GetLowerBound(1); i--)
+            {
+                var below = (char)scan.GetValue(y + 1, i);
+                if (below != '#' && below != '~')
+                    return false;
+
+                if ((char)scan.GetValue(y, i) == '#')
+                    break;
+            }
 
             return true;
         }
