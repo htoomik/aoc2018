@@ -113,6 +113,22 @@ y=13, x=498..504";
 ....#~~~~~#...
 ....#~~~~~#...
 ....#######...";
+        
+        private const string WateredMap30 = @"
+......+.......
+......|.....#.
+.#..#||||...#.
+.#..#~~#|.....
+.#..#~~#|.....
+.#~~~~~#|.....
+.#~~~~~#|.....
+.#######|.....
+........|.....
+...|||||||||..
+...|#~~~~~#|..
+...|#~~~~~#|..
+...|#~~~~~#|..
+...|#######|..";
 
         private const string FullyWateredMap = @"
 ......+.......
@@ -150,7 +166,9 @@ y=13, x=498..504";
         [InlineData(14, WateredMap14)]
         [InlineData(19, WateredMap19)]
         [InlineData(29, WateredMap29)]
-        public void Test(int drops, string expected)
+        [InlineData(30, WateredMap30)]
+        [InlineData(null, FullyWateredMap)]
+        public void Test(int? drops, string expected)
         {
             var scan = Day17.Parse(Input.Trim());
             var (wateredScan, _) = Day17.Pour(scan, drops);

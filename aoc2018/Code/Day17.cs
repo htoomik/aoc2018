@@ -6,14 +6,47 @@ namespace aoc2018.Code
 {
     class Day17
     {
-        public static (Array wateredScan, int watercount) Pour(Array scan, int drops)
+        public static (Array wateredScan, int watercount) Pour(Array scan, int? drops)
         {
-            for (int i = 0; i < drops; i++)
+            if (drops.HasValue)
             {
-                AddDrop(scan, 0, 500);
+                for (int i = 0; i < drops; i++)
+                {
+                    AddDrop(scan, 0, 500);
+                }
+                var waterCount = CountWater(scan);
+                return (scan, waterCount);
+            }
+            else
+            {
+                var waterCount = 0;
+                while (true)
+                {
+                    AddDrop(scan, 0, 500);
+                    var newWaterCount = CountWater(scan);
+                    if (newWaterCount == waterCount)
+                        break;
+                    waterCount = newWaterCount;
+                }
+
+                return (scan, waterCount);
+            }
+        }
+
+        private static int CountWater(Array scan)
+        {
+            var count = 0;
+            for (int y = scan.GetLowerBound(0); y <= scan.GetUpperBound(0); y++)
+            {
+                for (int x = scan.GetLowerBound(1); x <= scan.GetUpperBound(1); x++)
+                {
+                    var c = (char) scan.GetValue(y, x);
+                    if (c == '|' || c == '~')
+                        count++;
+                }
             }
 
-            return (scan, 0);
+            return count;
         }
 
         private static void AddDrop(Array scan, int y, int x)
@@ -120,6 +153,9 @@ namespace aoc2018.Code
 
         private static bool HasSupport(Array scan, int y, int x)
         {
+            if (y == scan.GetUpperBound(0))
+                return false;
+
             for (int i = x; i <= scan.GetUpperBound(1); i++)
             {
                 var below = (char)scan.GetValue(y + 1, i);
@@ -130,7 +166,7 @@ namespace aoc2018.Code
                     break;
             }
 
-            for (int i = x; i >- scan.GetLowerBound(1); i--)
+            for (int i = x; i >= scan.GetLowerBound(1); i--)
             {
                 var below = (char)scan.GetValue(y + 1, i);
                 if (below != '#' && below != '~')
