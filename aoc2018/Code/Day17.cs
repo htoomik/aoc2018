@@ -51,59 +51,80 @@ namespace aoc2018.Code
 
         private static void AddDrop(Array scan, int y, int x)
         {
-            var moved = true;
-            var bottom = scan.GetUpperBound(y);
+            if (!DownAndSpread(scan, y, x, -1))
+                DownAndSpread(scan, y, x, +1);
+        }
 
-            // Avoid bouncing left and right
-            var movedLeft = false;
-            var movedRight = false;
+        private static bool DownAndSpread(Array scan, int y, int x, int direction)
+        {
+            if (y == scan.GetUpperBound(0))
+                return false;
 
-            while (moved)
+            var moved = false;
+
+            // Move down as far as possible
+            while (CanMoveDown(scan, y, x))
             {
-                moved = false;
+                moved = true;
+                y++;
+                scan.SetValue('|', y, x);
+            }
 
-                if (y == bottom)
-                    break;
+            if (!moved)
+                return false;
 
-                // Move down as far as possible
-                while (CanMoveDown(scan, y, x))
+            if (y == scan.GetUpperBound(0))
+                return false;
+
+            var movedSideways = false;
+            // Spread horizontally
+            if (direction == -1)
+            {
+                while (CanMoveLeft(scan, y, x))
                 {
-                    movedRight = false;
-                    movedLeft = false;
-                    moved = true;
-                    y++;
+                    x--;
                     scan.SetValue('|', y, x);
+                    movedSideways = true;
                 }
-
-                // Spread horizontally
-                if (!movedRight || !HasSupport(scan, y, x))
+            }
+            else
+            {
+                while (CanMoveRight(scan, y, x))
                 {
-                    while (CanMoveLeft(scan, y, x))
-                    {
-                        x--;
-                        scan.SetValue('|', y, x);
-                        moved = true;
-                        movedLeft = true;
-                    }
-                }
-
-                if (!movedLeft || !HasSupport(scan, y, x))
-                {
-                    while (CanMoveRight(scan, y, x))
-                    {
-                        x++;
-                        scan.SetValue('|', y, x);
-                        moved = true;
-                        movedRight = true;
-                    }
+                    x++;
+                    scan.SetValue('|', y, x);
+                    movedSideways = true;
                 }
             }
 
-            if (y == bottom)
-                return;
-
             if (HasSupport(scan, y, x))
-                scan.SetValue('~', y, x);
+            {
+                var canMoveInOtherDirection = false;
+                if (direction == -1)
+                {
+                    var behindMe = (char) scan.GetValue(y, x + 1);
+                    canMoveInOtherDirection = behindMe != '#' && behindMe != '~';
+                }
+
+                if (movedSideways || !canMoveInOtherDirection)
+                {
+                    scan.SetValue('~', y, x);
+                    return true;
+                }
+            }
+
+            if (direction == -1 && x == scan.GetLowerBound(1))
+                return false;
+
+            if (direction == 1 && x == scan.GetUpperBound(1))
+                return false;
+
+            if ((char) scan.GetValue(y, x + direction) == '#')
+                return false;
+
+            if (!DownAndSpread(scan, y, x, -1))
+                return DownAndSpread(scan, y, x, +1);
+            return false;
         }
 
         private static bool CanMoveDown(Array scan, int y, int x)
