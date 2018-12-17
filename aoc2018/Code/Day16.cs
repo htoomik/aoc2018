@@ -44,6 +44,49 @@ namespace aoc2018.Code
             return total;
         }
 
+        public static int Solve2(string input)
+        {
+            var deductions = Deductions(input);
+            var reduced = ReduceDeductions(deductions);
+            var operationsByOpCode = reduced.ToDictionary(kvp => kvp.Key, kvp => Operations.Single(op => op.Name == kvp.Value));
+
+            var partTwoInput = input.Split("\n\n\n\n")[1].Trim();
+            var instructions = partTwoInput.Split("\n").Select(s => s.Trim());
+            var arguments = instructions.Select(i => i.ToInts(" "));
+            var startingState = new[] { 0, 0, 0, 0 };
+            foreach (var args in arguments)
+            {
+                var opCode = args[0];
+                var operation = operationsByOpCode[opCode];
+                operation.Action(startingState, args[1], args[2], args[3]);
+            }
+
+            return startingState[0];
+        }
+
+        public static Dictionary<int, string> ReduceDeductions(Dictionary<int, HashSet<string>> deductions)
+        {
+            var results = new Dictionary<int, string>();
+
+            while (deductions.Any(d => d.Value.Count > 0))
+            {
+                var singleMatch = deductions.First(d => d.Value.Count == 1);
+                var opCode = singleMatch.Key;
+                var name = singleMatch.Value.Single();
+                results[opCode] = name;
+
+                foreach (var deduction in deductions)
+                {
+                    if (deduction.Value.Count > 0)
+                    {
+                        deduction.Value.Remove(name);
+                    }
+                }
+            }
+
+            return results;
+        }
+
         public static Dictionary<int, HashSet<string>> Deductions(string input)
         {
             var partOneInput = input.Split("\n\n\n\n")[0];

@@ -68,5 +68,21 @@ After:  [3, 2, 2, 1]";
                 _output.WriteLine(deduction.Key + " " + string.Join(",", deduction.Value));
             }
         }
+ 
+        [Fact]
+        public void ReduceDeductions()
+        {
+            var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input16.txt");
+            var deductions = Day16.Deductions(input);
+            var reduced = Day16.ReduceDeductions(deductions);
+        }
+
+        [Fact]
+        public void Solve2()
+        {
+            var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input16.txt");
+            var answer = Day16.Solve2(input);
+            _output.WriteLine(answer.ToString());
+        }
     }
 }
