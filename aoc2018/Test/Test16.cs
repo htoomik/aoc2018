@@ -74,7 +74,7 @@ After:  [3, 2, 2, 1]";
         {
             var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input16.txt");
             var deductions = Day16.Deductions(input);
-            var reduced = Day16.ReduceDeductions(deductions);
+            Day16.ReduceDeductions(deductions);
         }
 
         [Fact]

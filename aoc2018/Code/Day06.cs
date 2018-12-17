@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace aoc2018.Code
 {
@@ -33,8 +31,8 @@ namespace aoc2018.Code
                     }
 
                     var shortest = distances.Values.Min();
-                    var closestCoords = distances.Where(kvp => kvp.Value == shortest);
-                    if (closestCoords.Count() == 1)
+                    var closestCoords = distances.Where(kvp => kvp.Value == shortest).ToList();
+                    if (closestCoords.Count == 1)
                     {
                         var closestCoordId = closestCoords.Single().Key;
                         grid[x, y] = closestCoordId;
@@ -47,15 +45,13 @@ namespace aoc2018.Code
                 }
             }
 
-            Print(grid, counts, maxX, maxY);
-
             var infinites = GetInfinites(grid, maxX, maxY);
             if (infinites.Count == 0)
             {
                 throw new Exception("Grid has no edges");
             }
 
-            var eligible = counts.Where(kvp => !infinites.Contains(kvp.Key)).Where(kvp => kvp.Key != ' ');
+            var eligible = counts.Where(kvp => !infinites.Contains(kvp.Key)).Where(kvp => kvp.Key != ' ').ToList();
             var largest = eligible.Select(kvp => kvp.Value).Max();
             var idOfLargest = eligible.Single(kvp => kvp.Value == largest).Key;
 
@@ -69,7 +65,6 @@ namespace aoc2018.Code
             var maxX = coords.Max(c => c.X);
             var maxY = coords.Max(c => c.Y);
             var grid = new char[maxX + 1, maxY + 1];
-            var counts = coords.ToDictionary(c => c.Id, c => 0);
 
             foreach (var coord in coords)
             {
@@ -100,36 +95,7 @@ namespace aoc2018.Code
                 }
             }
 
-            Print(grid, counts, maxX, maxY);
             return count;
-        }
-
-        private static void Print(char[,] grid, Dictionary<char, int> counts, int maxX, int maxY)
-        {
-            return;
-            var sb = new StringBuilder();
-            for (var y = 0; y < maxY; y++)
-            {
-                for (var x = 0; x < maxX; x++)
-                {
-                    var ch = grid[x, y];
-                    if (ch == 0)
-                        sb.Append(" ");
-                    else
-                        sb.Append(ch);
-                }
-
-                sb.Append(Environment.NewLine);
-            }
-
-            File.WriteAllText("C:\\Code\\aoc2018\\output06_01.txt", sb.ToString());
-
-            sb = new StringBuilder();
-            foreach (var count in counts.OrderByDescending(kvp => kvp.Value))
-            {
-                sb.AppendLine(count.Key + " - " + count.Value);
-            }
-            File.WriteAllText("C:\\Code\\aoc2018\\output06_02.txt", sb.ToString());
         }
 
         private static HashSet<char> GetInfinites(char[,] grid, int maxX, int maxY)
@@ -157,7 +123,7 @@ namespace aoc2018.Code
         private static List<Coord> Parse(List<string> data)
         {
             var results = new List<Coord>();
-            var ids = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            const string ids = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
             var i = 0;
             foreach (var line in data)
             {
