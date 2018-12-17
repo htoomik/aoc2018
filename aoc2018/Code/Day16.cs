@@ -6,11 +6,27 @@ namespace aoc2018.Code
 {
     static class Day16
     {
-        private static HashSet<Action<int[], int, int, int>> Operations = new HashSet<Action<int[], int, int, int>>
+        #region OperationsSet
+        private static readonly HashSet<Operation> Operations = new HashSet<Operation>
         {
-            Addr, Addi, Mulr, Muli, Banr, Bani, Borr, Bori, 
-            Setr, Seti, Gtri, Gtir, Gtrr, Eqir, Eqri, Eqrr
+            new Operation { Action = Addr, Name = "Addr" },
+            new Operation { Action = Addi, Name = "Addi" },
+            new Operation { Action = Mulr, Name = "Mulr" },
+            new Operation { Action = Muli, Name = "Muli" },
+            new Operation { Action = Banr, Name = "Banr" },
+            new Operation { Action = Bani, Name = "Bani" },
+            new Operation { Action = Borr, Name = "Borr" },
+            new Operation { Action = Bori, Name = "Bori" },
+            new Operation { Action = Setr, Name = "Setr" },
+            new Operation { Action = Seti, Name = "Seti" },
+            new Operation { Action = Gtri, Name = "Gtri" },
+            new Operation { Action = Gtir, Name = "Gtir" },
+            new Operation { Action = Gtrr, Name = "Gtrr" },
+            new Operation { Action = Eqir, Name = "Eqir" },
+            new Operation { Action = Eqri, Name = "Eqri" },
+            new Operation { Action = Eqrr, Name = "Eqrr" }
         };
+        #endregion
 
         public static int Solve1(string input)
         {
@@ -28,22 +44,65 @@ namespace aoc2018.Code
             return total;
         }
 
+        public static Dictionary<int, HashSet<string>> Deductions(string input)
+        {
+            var partOneInput = input.Split("\n\n\n\n")[0];
+            var samples = partOneInput.Split("\n\n");
+            
+            var opCodeMatches = new Dictionary<int, HashSet<string>>();
+            for (var i = 0; i < Operations.Count; i++)
+            {
+                opCodeMatches[i] = Operations.Select(op => op.Name).ToHashSet();
+            }
+
+            foreach (var sample in samples)
+            {
+                var (startingRegisters, arguments, endingRegisters) = Parse(sample);
+                var opCode = arguments[0];
+                var matchingOperations = GetMatchingOperations(startingRegisters, arguments, endingRegisters).Select(op => op.Name).ToHashSet();
+
+                var opCodePotentialMatches = opCodeMatches[opCode];
+                var toRemove = new HashSet<string>();
+                foreach (var potentialMatch in opCodePotentialMatches)
+                {
+                    if (!matchingOperations.Contains(potentialMatch))
+                    {
+                        toRemove.Add(potentialMatch);
+                    }
+                }
+
+                foreach (var notAMatch in toRemove)
+                {
+                    opCodePotentialMatches.Remove(notAMatch);
+                }
+            }
+
+            return opCodeMatches;
+        }
+
         public static int CountMatchingOperations(string input)
         {
             var (startingRegisters, arguments, endingRegisters) = Parse(input);
-            var matches = 0;
+            var matchingOperations = GetMatchingOperations(startingRegisters, arguments, endingRegisters);
+
+            return matchingOperations.Count();
+        }
+
+        private static List<Operation> GetMatchingOperations(int[] startingRegisters, int[] arguments, int[] endingRegisters)
+        {
+            var operations = Operations.ToDictionary(op => op, op => true);
 
             foreach (var operation in Operations)
             {
                 var isMatch = IsMatch(operation, startingRegisters, arguments, endingRegisters);
 
-                if (isMatch)
+                if (!isMatch)
                 {
-                    matches++;
+                    operations[operation] = false;
                 }
             }
 
-            return matches;
+            return operations.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
         }
 
         public static (int[] startingRegisters, int[] arguments, int[] endingRegisters) Parse(string input)
@@ -55,27 +114,15 @@ namespace aoc2018.Code
             return (startingRegisters, arguments, endingRegisters);
         }
 
-        public static bool IsMatch(Action<int[], int, int, int> operation, int[] startingRegisters, int[] arguments, int[] endingRegisters)
+        public static bool IsMatch(Operation operation, int[] startingRegisters, int[] arguments, int[] endingRegisters)
         {
             var newRegisters = Copy(startingRegisters);
-            try
-            {
-                operation(newRegisters, arguments[1], arguments[2], arguments[3]);
-            }
-            catch
-            {
-                return false;
-            }
+            operation.Action(newRegisters, arguments[1], arguments[2], arguments[3]);
 
-            if (Equal(newRegisters, endingRegisters))
-            {
-                return true;
-            }
-
-            return false;
+            return Equal(newRegisters, endingRegisters);
         }
 
-        public static int[] ParseRegisters(string s)
+        private static int[] ParseRegisters(string s)
         {
             return s
                 .Replace("Before: [", "")
@@ -85,10 +132,12 @@ namespace aoc2018.Code
                 .ToInts(", ");
         }
 
-        public static int[] ToInts(this string s, string splitBy)
+        private static int[] ToInts(this string s, string splitBy)
         {
             return s.Split(splitBy).Select(int.Parse).ToArray();
         }
+
+        #region Operations
 
         public static void Addr(int[] registers, int a, int b, int c)
         {
@@ -170,6 +219,8 @@ namespace aoc2018.Code
             registers[c] = registers[a] == registers[b] ? 1 : 0;
         }
 
+        #endregion
+
         private static int[] Copy(int[] registers)
         {
             return registers.Select(i => i).ToArray();
@@ -181,6 +232,13 @@ namespace aoc2018.Code
                 return false;
 
             return !one.Where((value, i) => value != two[i]).Any();
+        }
+
+        public class Operation
+        {
+            public string Name { get; set; }
+            public int OpCode { get; set; }
+            public Action<int[], int, int, int> Action { get; set; }
         }
     }
 }
