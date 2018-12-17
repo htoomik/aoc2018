@@ -8,6 +8,9 @@
       <NamedTestSelector>
         <TestName>aoc2018.Test.Test15.Solution.Solve2</TestName>
       </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>aoc2018.Test.Test09_LinkedList.Solve2</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

@@ -34,8 +34,7 @@ namespace aoc2018.Test
             _output.WriteLine(result.ToString());
         }
 
-        //[Fact]
-        // Too slow to runs
+        [Fact]
         public void Solve2()
         {
             var result = Day09_LinkedList.Solve(400, 7186400);
