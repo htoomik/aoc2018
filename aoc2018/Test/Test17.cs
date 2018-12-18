@@ -1,4 +1,5 @@
-﻿using aoc2018.Code;
+﻿using System.IO;
+using aoc2018.Code;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -8,6 +9,7 @@ namespace aoc2018.Test
     {
         private readonly ITestOutputHelper _output;
 
+        #region Inputs
         private const string Input = @"
 x=495, y=2..7
 y=7, x=495..501
@@ -146,6 +148,8 @@ y=13, x=498..504";
 ...|#~~~~~#|..
 ...|#######|..";
 
+        #endregion
+
         public Test17(ITestOutputHelper output)
         {
             _output = output;
@@ -174,6 +178,15 @@ y=13, x=498..504";
             var (wateredScan, _) = Day17.Pour(scan, drops);
             var wateredMap = Day17.Print(wateredScan);
             Assert.Equal(expected.Trim(), wateredMap.Trim());
+        }
+
+        [Fact]
+        public void Solve1()
+        {
+            var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input17.txt");
+            var scan = Day17.Parse(input.Trim());
+            var result = Day17.Pour(scan, null);
+            _output.WriteLine(result.watercount.ToString());
         }
     }
 }
