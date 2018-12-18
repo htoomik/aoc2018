@@ -11,6 +11,9 @@
       <NamedTestSelector>
         <TestName>aoc2018.Test.Test09_LinkedList.Solve2</TestName>
       </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>aoc2018.Test.Test17.Solve1</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>
