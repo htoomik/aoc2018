@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using aoc2018.Code;
 using Xunit;
 using Xunit.Abstractions;
@@ -148,6 +149,26 @@ y=13, x=498..504";
 ...|#~~~~~#|..
 ...|#######|..";
 
+        private const string MapX = @"
+......+..........
+.................
+..#.........#....
+..#...#..#..#....
+..#...####..#....
+..#.........#....
+..#.........#....
+..###########....";
+        
+        private const string ExpectedX = @"
+......+..........
+.|||||||||||||...
+.|#~~~~~~~~~#|...
+.|#~~~#~~#~~#|...
+.|#~~~####~~#|...
+.|#~~~~~~~~~#|...
+.|#~~~~~~~~~#|...
+.|###########|...";
+
         #endregion
 
         public Test17(ITestOutputHelper output)
@@ -175,9 +196,29 @@ y=13, x=498..504";
         public void Test(int? drops, string expected)
         {
             var scan = Day17.Parse(Input.Trim());
-            var (wateredScan, _) = Day17.Pour(scan, drops);
+            var (wateredScan, _) = new Day17().Pour(scan, drops);
             var wateredMap = Day17.Print(wateredScan);
             Assert.Equal(expected.Trim(), wateredMap.Trim());
+        }
+
+        [Fact]
+        public void TestX()
+        {
+            var scan = Array.CreateInstance(typeof(char), new[] { 9, 17 }, new[] { 0, 494 });
+            var lines = MapX.Trim().Split("\r\n");
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+                for (int j = 0; j < line.Length; j++)
+                {
+                    scan.SetValue(line[j], i, j + 494);
+                }
+            }
+
+            var (wateredScan, _) = new Day17().Pour(scan, null);
+            var wateredMap = Day17.Print(wateredScan);
+            Assert.Equal(ExpectedX.Trim(), wateredMap.Trim());
         }
 
         [Fact]
@@ -185,7 +226,8 @@ y=13, x=498..504";
         {
             var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input17.txt");
             var scan = Day17.Parse(input.Trim());
-            var result = Day17.Pour(scan, null);
+            var result = new Day17().Pour(scan, null);
+            File.WriteAllText("C:\\Code\\aoc2018\\output17.txt", Day17.Print(result.wateredScan));
             _output.WriteLine(result.watercount.ToString());
         }
     }
