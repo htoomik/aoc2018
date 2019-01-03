@@ -13,9 +13,8 @@ namespace aoc2018.Code
             var root = new Segment(null);
             var currentSegment = root;
 
-            for (var i = 0; i < input.Length; i++)
+            foreach (var c in input)
             {
-                var c = input[i];
                 if ("NSEW".Contains(c))
                 {
                     currentSegment.PathFromBeginning += c;
@@ -66,9 +65,17 @@ namespace aoc2018.Code
         public static string Map(string input)
         {
             var paths = GetPaths(input);
+            var rooms = ExploreRooms(paths);
 
+            Print(rooms);
+
+            return GenerateMap(rooms);
+        }
+
+        private static Dictionary<Coords, Room> ExploreRooms(List<string> paths)
+        {
             var origin = new Coords(0, 0);
-            var startingRoom = new Room(origin);
+            var startingRoom = new Room(origin, r => {});
             var rooms = new Dictionary<Coords, Room> { { origin, startingRoom } };
 
             foreach (var path in paths)
@@ -118,12 +125,15 @@ namespace aoc2018.Code
                 }
             }
 
+            return rooms;
+        }
+
+        private static string GenerateMap(Dictionary<Coords, Room> rooms)
+        {
             var minX = rooms.Keys.Min(c => c.X);
             var minY = rooms.Keys.Min(c => c.Y);
             var maxX = rooms.Keys.Max(c => c.X);
             var maxY = rooms.Keys.Max(c => c.Y);
-
-            Print(rooms);
 
             var sb = new StringBuilder();
             sb.AppendLine(new string('#', (maxX - minX + 1) * 2 + 1));
@@ -148,9 +158,7 @@ namespace aoc2018.Code
                         sb.Append('.');
 
                     var westRoom = rooms.ContainsKey(new Coords(x, y)) ? rooms[new Coords(x, y)] : null;
-                    var eastRoom = rooms.ContainsKey(new Coords(x + 1, y)) ? rooms[new Coords(x + 1, y)] : null;
-                    if (westRoom != null && westRoom.DoorToEast || 
-                        eastRoom != null && eastRoom.DoorToWest)
+                    if (westRoom != null && westRoom.DoorToEast)
                     {
                         sb.Append('|');
                     }
@@ -172,9 +180,7 @@ namespace aoc2018.Code
                     var x = i + minX;
 
                     var northRoom = rooms.ContainsKey(new Coords(x, y)) ? rooms[new Coords(x, y)] : null;
-                    var southRoom = rooms.ContainsKey(new Coords(x, y + 1)) ? rooms[new Coords(x, y + 1)] : null;
-                    if (northRoom != null && northRoom.DoorToSouth || 
-                        southRoom != null && southRoom.DoorToNorth)
+                    if (northRoom != null && northRoom.DoorToSouth)
                     {
                         sb.Append('-');
                     }
@@ -190,7 +196,8 @@ namespace aoc2018.Code
                 sb.AppendLine();
             }
 
-            return sb.ToString();
+            var map = sb.ToString();
+            return map;
         }
 
         private static void Print(Dictionary<Coords, Room> rooms)
@@ -206,6 +213,7 @@ namespace aoc2018.Code
 
         public int Solve(string input)
         {
+
             return 0;
         }
 
@@ -217,8 +225,8 @@ namespace aoc2018.Code
                 Y = y;
             }
 
-            public int X { get; set; }
-            public int Y { get; set; }
+            public int X { get; }
+            public int Y { get; }
 
             public Coords ToNorth => new Coords(X, Y - 1);
             public Coords ToSouth => new Coords(X, Y + 1);
@@ -228,40 +236,41 @@ namespace aoc2018.Code
 
         private class Room
         {
-            public Room(Coords coords)
+            public Room(Coords coords, Action<Room> makeDoor)
             {
                 Coords = coords;
+                makeDoor(this);
             }
 
             public Coords Coords { get; }
 
-            public bool DoorToNorth { get; set; }
-            public bool DoorToSouth { get; set; }
-            public bool DoorToEast { get; set; }
-            public bool DoorToWest { get; set; }
+            public bool DoorToNorth { get; private set; }
+            public bool DoorToSouth { get; private set; }
+            public bool DoorToEast { get; private set; }
+            public bool DoorToWest { get; private set; }
 
             public Room MoveToNorth()
             {
                 DoorToNorth = true;
-                return new Room(Coords.ToNorth);
+                return new Room(Coords.ToNorth, r => r.DoorToSouth = true);
             }
 
             public Room MoveToSouth()
             {
                 DoorToSouth = true;
-                return new Room(Coords.ToSouth);
+                return new Room(Coords.ToSouth, r => r.DoorToNorth = true);
             }
 
             public Room MoveToEast()
             {
                 DoorToEast = true;
-                return new Room(Coords.ToEast);
+                return new Room(Coords.ToEast, r => r.DoorToWest = true);
             }
 
             public Room MoveToWest()
             {
                 DoorToWest = true;
-                return new Room(Coords.ToWest);
+                return new Room(Coords.ToWest, r => r.DoorToEast = true);
             }
         }
 
