@@ -211,10 +211,53 @@ namespace aoc2018.Code
             }
         }
 
-        public int Solve(string input)
+        public static int Solve(string input)
         {
+            var paths = GetPaths(input);
+            var rooms = ExploreRooms(paths);
 
-            return 0;
+            var origin = new Coords(0, 0);
+            
+            var cost = new Dictionary<Coords, int>();
+            cost.Add(origin, 0);
+
+            var frontier = new Queue<Coords>();
+            frontier.Enqueue(origin);
+
+            while (frontier.Count > 0)
+            {
+                var current = frontier.Dequeue();
+                var room = rooms[current];
+                var newCost = cost[current] + 1;
+
+                if (room.DoorToNorth && !cost.ContainsKey(current.ToNorth))
+                {
+                    frontier.Enqueue(current.ToNorth);
+                    cost[current.ToNorth] = newCost;
+                }
+
+                if (room.DoorToSouth && !cost.ContainsKey(current.ToSouth))
+                {
+                    frontier.Enqueue(current.ToSouth);
+                    cost[current.ToSouth] = newCost;
+                }
+
+                if (room.DoorToEast && !cost.ContainsKey(current.ToEast))
+                {
+                    frontier.Enqueue(current.ToEast);
+                    cost[current.ToEast] = newCost;
+                }
+
+                if (room.DoorToWest && !cost.ContainsKey(current.ToWest))
+                {
+                    frontier.Enqueue(current.ToWest);
+                    cost[current.ToWest] = newCost;
+                }
+            }
+
+            var maxCost = cost.Values.Max();
+
+            return maxCost;
         }
 
         private struct Coords
