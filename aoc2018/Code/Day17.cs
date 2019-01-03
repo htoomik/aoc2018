@@ -1,215 +1,167 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace aoc2018.Code
 {
-    class Day17
+    public class Day17
     {
-        public static (Array wateredScan, int watercount) Pour(Array scan, int? drops)
-        {
-            if (drops.HasValue)
-            {
-                for (int i = 0; i < drops; i++)
-                {
-                    AddDrop(scan, 0, 500);
-                }
-                var waterCount = CountWater(scan);
-                return (scan, waterCount);
-            }
-            else
-            {
-                var standingWaterCount = 0;
-                var runningWaterCount = 0;
-                while (true)
-                {
-                    AddDrop(scan, 0, 500);
-                    var newRunningWaterCount = Count(scan, '|');
-                    var newStandingWaterCount = Count(scan, '~');
-                    if (newRunningWaterCount == runningWaterCount &&
-                        newStandingWaterCount == standingWaterCount)
-                        break;
-                    standingWaterCount = newStandingWaterCount;
-                    runningWaterCount = newRunningWaterCount;
-                }
+        private readonly HashSet<(int, int)> _done = new HashSet<(int, int)>();
 
-                return (scan, standingWaterCount + runningWaterCount);
-            }
-        }
-
-        private static int CountWater(Array scan)
+        public char[,] Pour(char[,] scan)
         {
-            return Count(scan, '|') + Count(scan, '~');
-        }
-
-        private static int Count(Array scan, char t)
-        {
-            var count = 0;
-            for (int y = scan.GetLowerBound(0); y <= scan.GetUpperBound(0); y++)
+            var originX = 0;
+            for (var i = 0; i < scan.GetLength(1); i++)
             {
-                for (int x = scan.GetLowerBound(1); x <= scan.GetUpperBound(1); x++)
+                if (scan[0, i] == '+')
                 {
-                    var c = (char) scan.GetValue(y, x);
-                    if (c == t)
-                        count++;
+                    originX = i;
+                    break;
                 }
             }
 
-            return count;
-        }
-
-        private static void AddDrop(Array scan, int y, int x)
-        {
-            if (!DownAndSpread(scan, y, x, -1))
-                DownAndSpread(scan, y, x, +1);
-        }
-
-        private static bool DownAndSpread(Array scan, int y, int x, int direction)
-        {
-            if (y == scan.GetUpperBound(0))
-                return false;
-
-            var moved = false;
-
-            // Move down as far as possible
-            while (CanMoveDown(scan, y, x))
+            var state = Print(scan);
+            var j = 0;
+            while(true)
             {
-                moved = true;
+                Drop(scan, 0, originX);
+                j++;
+                var newState = Print(scan);
+
+                if (j % 10 == 0 || j > 110)
+                {
+                    File.WriteAllText($"C:\\Code\\aoc2018\\output17_{j}.txt",state);
+                }
+
+                if (newState == state)
+                    break;
+                state = newState;
+            }
+
+            return scan;
+        }
+
+        public static (int, int) CountWater(char[,] scan, int minY)
+        {
+            var count1 = 0;
+            var count2 = 0;
+            for (var k = minY; k < scan.GetLength(0); k++)
+            {
+                for (var m = 0; m < scan.GetLength(1); m++)
+                {
+                    if (scan[k, m] == '~')
+                    {
+                        count1++;
+                        count2++;
+                    }
+                    if (scan[k, m] == '|')
+                    {
+                        count1++;
+                    }
+                }
+            }
+            return (count1, count2);
+        }
+
+        private void Drop(char[,] scan, int y, int x)
+        {
+            if (_done.Contains((x, y)))
+            {
+                return;
+            }
+
+            var originalY = y;
+
+            // Down as far as possible
+            while (y < scan.GetLength(0) - 1 &&
+                   (scan[y + 1, x] == '|' || scan[y + 1, x] == '.'))
+            {
+                scan[y + 1, x] = '|';
                 y++;
-                scan.SetValue('|', y, x);
             }
 
-            if (!moved)
-                return false;
-
-            if (y == scan.GetUpperBound(0))
-                return false;
-
-            var movedSideways = false;
-            // Spread horizontally
-            if (direction == -1)
+            if (y == originalY)
             {
-                while (CanMoveLeft(scan, y, x))
+                if (!_done.Contains((x, originalY)))
                 {
-                    x--;
-                    scan.SetValue('|', y, x);
-                    movedSideways = true;
+                    _done.Add((x, originalY));
                 }
-            }
-            else
-            {
-                while (CanMoveRight(scan, y, x))
-                {
-                    x++;
-                    scan.SetValue('|', y, x);
-                    movedSideways = true;
-                }
+
+                return;
             }
 
-            if (HasSupport(scan, y, x))
+            if (y == scan.GetLength(0) - 1)
             {
-                var canMoveInOtherDirection = false;
-                if (direction == -1)
+                if (!_done.Contains((x, originalY)))
                 {
-                    var behindMe = (char) scan.GetValue(y, x + 1);
-                    canMoveInOtherDirection = behindMe != '#' && behindMe != '~';
+                    _done.Add((x, originalY));
                 }
 
-                if (movedSideways || !canMoveInOtherDirection)
-                {
-                    scan.SetValue('~', y, x);
-                    return true;
-                }
+                return;
             }
 
-            if (direction == -1 && x == scan.GetLowerBound(1))
-                return false;
-
-            if (direction == 1 && x == scan.GetUpperBound(1))
-                return false;
-
-            if ((char) scan.GetValue(y, x + direction) == '#')
-                return false;
-
-            if (!DownAndSpread(scan, y, x, -1))
-                return DownAndSpread(scan, y, x, +1);
-            return false;
-        }
-
-        private static bool CanMoveDown(Array scan, int y, int x)
-        {
-            if (y == scan.GetUpperBound(0))
-                return false;
-
-            var below = (char) scan.GetValue(y + 1, x);
-            return below == '|' || below == 0;
-        }
-
-        private static bool CanMoveLeft(Array scan, int y, int x)
-        {
-            if (x == scan.GetLowerBound(1))
-                return false;
-
-            // spread until you (a) hit a wall or (b) previous water or (c) pour over an edge
-            if ((char) scan.GetValue(y, x - 1) == '#')
-                return false;
-            
-            if ((char) scan.GetValue(y, x - 1) == '~')
-                return false;
-
-            if (CanMoveDown(scan, y, x))
-                return false;
-
-            return true;
-        }
-
-        private static bool CanMoveRight(Array scan, int y, int x)
-        {
-            if (x == scan.GetUpperBound(1))
-                return false;
-
-            // spread until you (a) hit a wall or (b) previous water or (c) pour over an edge
-            if ((char) scan.GetValue(y, x + 1) == '#')
-                return false;
-            
-            if ((char) scan.GetValue(y, x + 1) == '~')
-                return false;
-
-            if (CanMoveDown(scan, y, x))
-                return false;
-
-            return true;
-        }
-
-        private static bool HasSupport(Array scan, int y, int x)
-        {
-            if (y == scan.GetUpperBound(0))
-                return false;
-
-            for (int i = x; i <= scan.GetUpperBound(1); i++)
+            int leftx;
+            int rightx;
+            while (true)
             {
-                var below = (char)scan.GetValue(y + 1, i);
-                if (below != '#' && below != '~')
-                    return false;
+                // Test left
+                leftx = x;
+                while (leftx - 1 >= 0 &&
+                       (scan[y, leftx - 1] == '.' || scan[y, leftx - 1] == '|') &&
+                       (scan[y + 1, leftx] == '#' || scan[y + 1, leftx] == '~'))
+                {
+                    scan[y, leftx - 1] = '|';
+                    leftx--;
+                }
 
-                if ((char)scan.GetValue(y, i) == '#')
+                // Test right
+                rightx = x;
+                while (rightx + 1 < scan.GetLength(1) &&
+                       (scan[y, rightx + 1] == '.' || scan[y, rightx + 1] == '|') &&
+                       (scan[y + 1, rightx] == '#' || scan[y + 1, rightx] == '~'))
+                {
+                    scan[y, rightx + 1] = '|';
+                    rightx++;
+                }
+
+                // If there is support, fill. Else, drop down and spread in both directions
+                if ((scan[y + 1, leftx] == '#' || scan[y + 1, leftx] == '~') &&
+                    (scan[y + 1, rightx] == '#' || scan[y + 1, rightx] == '~') &&
+                    scan[y, leftx - 1] == '#' &&
+                    scan[y, rightx + 1] == '#')
+                {
+                    for (var i = leftx; i <= rightx; i++)
+                    {
+                        scan[y, i] = '~';
+                    }
+
+                    // Up one step and try spread again
+                    y--;
+                    if (y == originalY)
+                        break;
+                }
+                else
+                {
                     break;
+                }
             }
 
-            for (int i = x; i >= scan.GetLowerBound(1); i--)
+            var stateBefore = Print(scan);
+
+            Drop(scan, y, leftx);
+            Drop(scan, y, rightx);
+
+            var stateAfter = Print(scan);
+
+            if (stateBefore == stateAfter)
             {
-                var below = (char)scan.GetValue(y + 1, i);
-                if (below != '#' && below != '~')
-                    return false;
-
-                if ((char)scan.GetValue(y, i) == '#')
-                    break;
+                _done.Add((x, originalY));
             }
-
-            return true;
         }
-
-        public static Array Parse(string input)
+        
+        public static (char[,], int) Parse(string input)
         {
             var lines = input.Split("\n").Select(s => s.Trim());
             var veins = lines.Select(ParseLine).ToList();
@@ -218,11 +170,17 @@ namespace aoc2018.Code
             var minY = veins.Min(vein => vein.MinY);
             var maxY = veins.Max(vein => vein.MaxY);
 
-            // Y: from the surface to the bottom
-            // X: from (min - 1) to (max + 1)
-            var array = Array.CreateInstance(typeof(char),
-                new[] { maxY + 1, maxX - minX + 3 },
-                new[] { 0, minX - 1 });
+            // Y: from the surface to the bottom -> no scaling
+            // X: from (min - 1) to (max + 1) -> subtract minX - 1
+            // [y, x]
+            var array = new char[maxY + 1, maxX - minX + 3];
+            for (int i = 0; i < array.GetLength(0); i++)
+            {
+                for (int j = 0; j < array.GetLength(1); j++)
+                {
+                    array[i, j] = '.';
+                }
+            }
 
             foreach (var vein in veins)
             {
@@ -230,21 +188,21 @@ namespace aoc2018.Code
                 {
                     for (var y = vein.YRange.Item1.Value; y <= vein.YRange.Item2.Value; y++)
                     {
-                        array.SetValue('#', y, vein.X.Value);
+                        array[y, vein.X.Value - (minX - 1)] = '#';
                     }
                 }
                 else
                 {
                     for (var x = vein.XRange.Item1.Value; x <= vein.XRange.Item2.Value; x++)
                     {
-                        array.SetValue('#', vein.Y.Value, x);
+                        array[vein.Y.Value, x - (minX - 1)] = '#';
                     }
                 }
             }
 
-            array.SetValue('+', 0, 500);
+            array[0, 500 - (minX - 1)] = '+';
 
-            return array;
+            return (array, minY);
         }
 
         private static Vein ParseLine(string line)
@@ -277,9 +235,9 @@ namespace aoc2018.Code
         {
             var sb = new StringBuilder();
 
-            for (var y = scan.GetLowerBound(0); y <= scan.GetUpperBound(0); y++)
+            for (var y = 0; y < scan.GetLength(0); y++)
             {
-                for (var x = scan.GetLowerBound(1); x <= scan.GetUpperBound(1); x++)
+                for (var x = 0; x < scan.GetLength(1); x++)
                 {
                     var c = (char)scan.GetValue(y, x);
                     sb.Append(c == 0 ? '.' : c);
