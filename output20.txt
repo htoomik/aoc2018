@@ -1,0 +1,16 @@
+[0, 0], North: False, South: False, East: True, West: False
+[1, 0], North: True, South: False, East: False, West: False
+[1, -1], North: False, South: False, East: False, West: True
+[0, -1], North: False, South: False, East: False, West: True
+[-1, -1], North: False, South: False, East: False, West: True
+[-2, -1], North: True, South: True, East: False, West: False
+[-2, -2], North: False, South: False, East: True, West: False
+[-1, -2], North: False, South: False, East: True, West: False
+[0, -2], North: False, South: False, East: True, West: False
+[1, -2], North: False, South: False, East: False, West: False
+[-2, 0], North: False, South: True, East: False, West: False
+[-2, 1], North: False, South: False, East: True, West: False
+[-1, 1], North: True, South: False, East: True, West: False
+[0, 1], North: False, South: False, East: True, West: False
+[1, 1], North: False, South: False, East: False, West: False
+[-1, 0], North: False, South: False, East: False, West: False
