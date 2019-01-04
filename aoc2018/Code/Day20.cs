@@ -165,10 +165,30 @@ namespace aoc2018.Code
         {
             ExploreRooms(input);
 
+            var distances = GetDistances();
+
+            var maxDistance = distances.Values.Max();
+
+            return maxDistance;
+        }
+        
+        public int Solve2(string input)
+        {
+            ExploreRooms(input);
+
+            var distances = GetDistances();
+
+            var longPaths = distances.Values.Count(c => c >= 1000);
+
+            return longPaths;
+        }
+
+        private Dictionary<Coords, int> GetDistances()
+        {
             var origin = new Coords(0, 0);
-            
-            var cost = new Dictionary<Coords, int>();
-            cost.Add(origin, 0);
+
+            var distances = new Dictionary<Coords, int>();
+            distances.Add(origin, 0);
 
             var frontier = new Queue<Coords>();
             frontier.Enqueue(origin);
@@ -177,36 +197,34 @@ namespace aoc2018.Code
             {
                 var current = frontier.Dequeue();
                 var room = _rooms[current];
-                var newCost = cost[current] + 1;
+                var newDistance = distances[current] + 1;
 
-                if (room.DoorToNorth && !cost.ContainsKey(current.ToNorth))
+                if (room.DoorToNorth && !distances.ContainsKey(current.ToNorth))
                 {
                     frontier.Enqueue(current.ToNorth);
-                    cost[current.ToNorth] = newCost;
+                    distances[current.ToNorth] = newDistance;
                 }
 
-                if (room.DoorToSouth && !cost.ContainsKey(current.ToSouth))
+                if (room.DoorToSouth && !distances.ContainsKey(current.ToSouth))
                 {
                     frontier.Enqueue(current.ToSouth);
-                    cost[current.ToSouth] = newCost;
+                    distances[current.ToSouth] = newDistance;
                 }
 
-                if (room.DoorToEast && !cost.ContainsKey(current.ToEast))
+                if (room.DoorToEast && !distances.ContainsKey(current.ToEast))
                 {
                     frontier.Enqueue(current.ToEast);
-                    cost[current.ToEast] = newCost;
+                    distances[current.ToEast] = newDistance;
                 }
 
-                if (room.DoorToWest && !cost.ContainsKey(current.ToWest))
+                if (room.DoorToWest && !distances.ContainsKey(current.ToWest))
                 {
                     frontier.Enqueue(current.ToWest);
-                    cost[current.ToWest] = newCost;
+                    distances[current.ToWest] = newDistance;
                 }
             }
 
-            var maxCost = cost.Values.Max();
-
-            return maxCost;
+            return distances;
         }
 
         private struct Coords
