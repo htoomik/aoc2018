@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
 using aoc2018.Code;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,20 +15,6 @@ namespace aoc2018.Test
         }
 
         private const string Input = @"^ENWWW(NEEE|SSE(EE|N))$";
-
-        [Fact]
-        public void TestGetPaths()
-        {
-            var expectedPaths = new List<string>
-            {
-                "ENWWWNEEE",
-                "ENWWWSSEEE",
-                "ENWWWSSEN"
-            };
-
-            var paths = Day20.GetPaths(Input);
-            Assert.Equal(expectedPaths, paths);
-        }
         
         [Fact]
         public void TestMap()
@@ -44,7 +30,7 @@ namespace aoc2018.Test
 #.|.|.|.#
 #########";
 
-            var map = Day20.Map(Input);
+            var map = new Day20().Map(Input);
             Assert.Equal(expectedMap.Trim(), map.Trim());
         }
         
@@ -65,7 +51,30 @@ namespace aoc2018.Test
 #.|.|.#.|.#
 ###########";
 
-            var map = Day20.Map(input);
+            var map = new Day20().Map(input);
+            Assert.Equal(expectedMap.Trim(), map.Trim());
+        }
+
+        [Fact]
+        public void TestMap_3()
+        {
+            const string input = @"^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$";
+            const string expectedMap = @"
+#############
+#.|.|.|.|.|.#
+#-#####-###-#
+#.#.|.#.#.#.#
+#-#-###-#-#-#
+#.#.#.|.#.|.#
+#-#-#-#####-#
+#.#.#.#X|.#.#
+#-#-#-###-#-#
+#.|.#.|.#.#.#
+###-#-###-#-#
+#.|.#.|.|.#.#
+#############";
+
+            var map = new Day20().Map(input);
             Assert.Equal(expectedMap.Trim(), map.Trim());
         }
 
@@ -76,8 +85,16 @@ namespace aoc2018.Test
         [InlineData("^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$", 31)]
         public void TestSolve(string input, int expected)
         {
-            var result = Day20.Solve(input);
+            var result = new Day20().Solve(input);
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Solve()
+        {
+            var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input20.txt");
+            var result = new Day20().Solve(input.Trim());
+            _output.WriteLine(result.ToString());
         }
     }
 }

@@ -6,126 +6,87 @@ using System.Text;
 
 namespace aoc2018.Code
 {
-    class Day20
+    public class Day20
     {
-        public static List<string> GetPaths(string input)
+        private readonly Dictionary<Coords, Room> _rooms = new Dictionary<Coords, Room>();
+
+        public string Map(string input)
         {
-            var root = new Segment(null);
-            var currentSegment = root;
+            ExploreRooms(input);
 
-            foreach (var c in input)
-            {
-                if ("NSEW".Contains(c))
-                {
-                    currentSegment.PathFromBeginning += c;
-                }
-                else if (c == '(')
-                {
-                    var newSegment = new Segment(currentSegment);
-                    currentSegment.Onwards.Add(newSegment);
-                    currentSegment = newSegment;
-                }
-                else if (c == '|')
-                {
-                    var newSegment = new Segment(currentSegment.Previous);
-                    currentSegment.Previous.Onwards.Add(newSegment);
-                    currentSegment = newSegment;
-                }
-                else if (c == ')')
-                {
-                    currentSegment = currentSegment.Previous;
-                }
-            }
-
-            return GetPaths(root);
+            return GenerateMap(_rooms);
         }
 
-        private static List<string> GetPaths(Segment root)
-        {
-            var paths = new List<string>();
-            AddPaths(paths, root);
-            return paths;
-        }
-
-        private static void AddPaths(List<string> paths, Segment segment)
-        {
-            if (segment.Onwards.Count == 0)
-            {
-                paths.Add(segment.CompletePath);
-            }
-            else
-            {
-                foreach (var segmentOnward in segment.Onwards)
-                {
-                    AddPaths(paths, segmentOnward);
-                }
-            }
-        }
-
-        public static string Map(string input)
-        {
-            var paths = GetPaths(input);
-            var rooms = ExploreRooms(paths);
-
-            Print(rooms);
-
-            return GenerateMap(rooms);
-        }
-
-        private static Dictionary<Coords, Room> ExploreRooms(List<string> paths)
+        private void ExploreRooms(string input)
         {
             var origin = new Coords(0, 0);
             var startingRoom = new Room(origin, r => {});
-            var rooms = new Dictionary<Coords, Room> { { origin, startingRoom } };
+            _rooms.Add(origin, startingRoom);
+            var current = startingRoom;
 
-            foreach (var path in paths)
+            using (var it = input.GetEnumerator())
             {
-                var current = startingRoom;
-                foreach (var c in path)
+                Explore(it, current);
+            }
+        }
+
+        private void Explore(CharEnumerator it, Room current)
+        {
+            var start = current;
+
+            while (it.MoveNext())
+            {
+                var c = it.Current;
+                if ("NSEW".Contains(c))
                 {
-                    Room newRoom = null;
                     switch (c)
                     {
                         case 'N':
                         {
-                            newRoom = current.MoveToNorth();
+                            current = current.MoveToNorth();
                             break;
                         }
                         case 'S':
                         {
-                            newRoom = current.MoveToSouth();
+                            current = current.MoveToSouth();
                             break;
                         }
                         case 'E':
                         {
-                            newRoom = current.MoveToEast();
+                            current = current.MoveToEast();
                             break;
                         }
                         case 'W':
                         {
-                            newRoom = current.MoveToWest();
+                            current = current.MoveToWest();
                             break;
                         }
                     }
 
-                    if (newRoom == null)
+                    if (!_rooms.ContainsKey(current.Coords))
                     {
-                        throw new Exception("null coords");
-                    }
-
-                    if (rooms.ContainsKey(newRoom.Coords))
-                    {
-                        current = rooms[newRoom.Coords];
-                    }
-                    else
-                    {
-                        rooms.Add(newRoom.Coords, newRoom);
-                        current = newRoom;
+                        _rooms.Add(current.Coords, current);
                     }
                 }
-            }
 
-            return rooms;
+                if (c == '|')
+                {
+                    // Go back to the starting point of this exploration
+                    current = start;
+                }
+
+                if (c == '(')
+                {
+                    // Branching starts here. Remember this point so that we can come back to it when the branching ends.
+                    Explore(it, current);
+                }
+
+                if (c == ')')
+                {
+                    // End of branch. Go back to last branching point.
+                    return;
+                }
+            }
         }
 
         private static string GenerateMap(Dictionary<Coords, Room> rooms)
@@ -200,21 +161,9 @@ namespace aoc2018.Code
             return map;
         }
 
-        private static void Print(Dictionary<Coords, Room> rooms)
+        public int Solve(string input)
         {
-            const string path = "C:\\Code\\aoc2018\\output20.txt";
-            File.Delete(path);
-
-            foreach (var room in rooms.Values)
-            {
-                File.AppendAllText(path, $"[{room.Coords.X}, {room.Coords.Y}], North: {room.DoorToNorth}, South: {room.DoorToSouth}, East: {room.DoorToEast}, West: {room.DoorToWest}\r\n");
-            }
-        }
-
-        public static int Solve(string input)
-        {
-            var paths = GetPaths(input);
-            var rooms = ExploreRooms(paths);
+            ExploreRooms(input);
 
             var origin = new Coords(0, 0);
             
@@ -227,7 +176,7 @@ namespace aoc2018.Code
             while (frontier.Count > 0)
             {
                 var current = frontier.Dequeue();
-                var room = rooms[current];
+                var room = _rooms[current];
                 var newCost = cost[current] + 1;
 
                 if (room.DoorToNorth && !cost.ContainsKey(current.ToNorth))
@@ -314,22 +263,6 @@ namespace aoc2018.Code
             {
                 DoorToWest = true;
                 return new Room(Coords.ToWest, r => r.DoorToEast = true);
-            }
-        }
-
-        private class Segment
-        {
-            public Segment Previous { get; }
-            public string PathToBeginning { get; }
-            public string PathFromBeginning { get; set; }
-            public string CompletePath => PathToBeginning + PathFromBeginning;
-
-            public readonly List<Segment> Onwards = new List<Segment>();
-
-            public Segment(Segment previous)
-            {
-                Previous = previous;
-                PathToBeginning = previous?.CompletePath;
             }
         }
     }
