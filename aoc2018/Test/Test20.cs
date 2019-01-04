@@ -96,5 +96,13 @@ namespace aoc2018.Test
             var result = new Day20().Solve(input.Trim());
             _output.WriteLine(result.ToString());
         }
+
+        [Fact]
+        public void Solve2()
+        {
+            var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input20.txt");
+            var result = new Day20().Solve2(input.Trim());
+            _output.WriteLine(result.ToString());
+        }
     }
 }
