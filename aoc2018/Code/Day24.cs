@@ -1,35 +1,110 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace aoc2018.Code
 {
-    class Day24
+    public static class Day24
     {
-        public static int Solve(string input)
+        public static (int, string) Solve(string input)
         {
             var (imm, inf) = Parse(input);
 
-            while (imm.Count > 0 && inf.Count > 0)
-            {
-                var allTargets = PairUp(imm, inf);
+            var log = new StringBuilder();
+            var winningArmy = Battle(imm, inf, log);
+            return (winningArmy.Sum(a => a.UnitCount), log.ToString());
+        }
 
-                foreach (var pair in allTargets)
+        public static (int boost, int result, string log) Solve2(string input)
+        {
+            var boost = 1;
+            List<Group> winningArmy;
+            var log = new StringBuilder();
+
+            while (true)
+            {
+                var (imm, inf) = Parse(input);
+
+                log.AppendLine();
+                log.AppendLine("-------------------");
+                log.AppendLine($"Boost = {boost}");
+                log.AppendLine("-------------------");
+
+                foreach (var g1 in imm)
                 {
-                    Attack(pair.Item1, pair.Item2);
+                    g1.AttackDamage += boost;
                 }
 
+                winningArmy = Battle(imm, inf, log);
+
+                var winner = winningArmy == null ? "null" : winningArmy[0].Allegiance.ToString();
+                log.AppendLine($"Boost = {boost}, Winner: {winner}");
+
+                var goodGuysWon = winningArmy != null && winningArmy[0].Allegiance == Allegiance.ImmuneSystem;
+                if (goodGuysWon)
+                {
+                    break;
+                }
+
+                boost++;
+            }
+
+            return (boost, winningArmy.Sum(g => g.UnitCount), log.ToString());
+        }
+
+        private static string LogStateOfArmies(List<Group> imm, List<Group> inf)
+        {
+            var immSummary = string.Join("\r\n", imm.Select(Summarize));
+            var infSummary = string.Join("\r\n", inf.Select(Summarize));
+            return $@"
+Immune System:
+{immSummary}
+Infection:
+{infSummary}
+";
+        }
+
+        private static string Summarize(Group g)
+        {
+            return $"Group {g.Id} contains {g.UnitCount} units. {g.AttackType}, AD {g.AttackDamage}, HP {g.HitPoints}, EP {g.EffectivePower}, I {g.Initiative}, W {g.Weaknesses}, I {g.Immunities}";
+        }
+
+        private static List<Group> Battle(List<Group> imm, List<Group> inf, StringBuilder log)
+        {
+            var r = 1;
+            while (imm.Count > 0 && inf.Count > 0)
+            {
+                log.AppendLine();
+                log.AppendLine($"Round {r++}");
+
+                // Find targets
+                var allTargets = PairUp(imm, inf, log);
+
+                // If stalemate, exit
+                if (!allTargets.Any())
+                {
+                    log.AppendLine("Nobody found anyone to attack. State of armies:");
+                    log.AppendLine(LogStateOfArmies(imm, inf));
+                    return null;
+                }
+
+                // Attack!
+                foreach (var pair in allTargets)
+                {
+                    Attack(pair.Item1, pair.Item2, log);
+                }
+
+                // Remove empty groups
                 imm = imm.Where(g => g.UnitCount > 0).ToList();
                 inf = inf.Where(g => g.UnitCount > 0).ToList();
             }
 
-            var winningArmy = imm.Count > 0 ? imm : inf;
-            return winningArmy.Sum(g => g.UnitCount);
+            return imm.Count > 0 ? imm : inf;
         }
 
-        public static IEnumerable<Tuple<Group, Group>> PairUp(List<Group> imm, List<Group> inf)
+        public static List<Tuple<Group, Group>> PairUp(List<Group> imm, List<Group> inf, StringBuilder log)
         {
             var immTargets = SelectTargets(imm, inf);
             var infTargets = SelectTargets(inf, imm);
@@ -37,29 +112,29 @@ namespace aoc2018.Code
             return infTargets
                 .Union(immTargets)
                 .OrderByDescending(kvp => kvp.Key.Initiative)
-                .Select(kvp => new Tuple<Group, Group>(kvp.Key, kvp.Value));
+                .Select(kvp => new Tuple<Group, Group>(kvp.Key, kvp.Value))
+                .ToList();
         }
 
         public static (List<Group> imm, List<Group> inf) Parse(string input)
         {
             var armies = input.Replace("\r\n", "\n").Split("\n\n");
 
-            var imm = ParseArmy(armies[0], "Immune system");
-            var inf = ParseArmy(armies[1], "Infection");
+            var imm = ParseArmy(armies[0], Allegiance.ImmuneSystem);
+            var inf = ParseArmy(armies[1], Allegiance.Infection);
 
             return (imm, inf);
         }
 
-        public static List<Group> ParseArmy(string army, string name)
+        public static List<Group> ParseArmy(string armyDefinition, Allegiance allegiance)
         {
-            var imm = new List<Group>();
-            var lines = army.Trim().Split("\n");
+            var army = new List<Group>();
+            var lines = armyDefinition.Trim().Split("\n");
             var i = 0;
 
             // First line contains the army's name - skip
             foreach (var line in lines.Skip(1))
             {
-                i++;
                 var regex = new Regex(@"(\d+) units each with (\d+) hit points (\((.*)\) )?with an attack that does (\d+) (\w+) damage at initiative (\d+)");
                 var match = regex.Match(line.Trim());
                 
@@ -72,12 +147,13 @@ namespace aoc2018.Code
 
                 var group = new Group
                 {
-                    Name =  name + " " + i,
+                    Allegiance = allegiance,
+                    Id = i,
                     UnitCount = unitCount,
                     HitPoints = hitPoints,
                     AttackDamage = attackDamage,
                     Initiative = initiative,
-                    AttackType = attackType,
+                    AttackType = attackType
                 };
 
                 // Immunities and weaknesses are hard to regex.
@@ -97,10 +173,12 @@ namespace aoc2018.Code
                     group.Weaknesses = weaknessPart.Replace("weak to ", "").Split(", ").Select(ParseAttackType).Aggregate((at, at2) => at | at2);
                 }
 
-                imm.Add(group);
+                army.Add(group);
+
+                i++;
             }
 
-            return imm;
+            return army;
         }
 
         private static AttackType ParseAttackType(string value)
@@ -115,7 +193,10 @@ namespace aoc2018.Code
 
         public static Dictionary<Group, Group> SelectTargets(List<Group> attackers, List<Group> defenders)
         {
-            var sortedAttackers = attackers.OrderByDescending(g => g.EffectivePower).ThenByDescending(g => g.Initiative);
+            var sortedAttackers = attackers
+                .OrderByDescending(g => g.EffectivePower)
+                .ThenByDescending(g => g.Initiative);
+
             var targets = new Dictionary<Group, Group>();
             var availableDefenders = new List<Group>();
             availableDefenders.AddRange(defenders);
@@ -133,7 +214,9 @@ namespace aoc2018.Code
                     .OrderByDescending(kvp => kvp.Value)
                     .ThenByDescending(kvp => kvp.Key.EffectivePower)
                     .ThenByDescending(kvp => kvp.Key.Initiative);
+                
                 var bestTarget = ordered.FirstOrDefault();
+                // Group will not attack if it will do no damage
                 if (bestTarget.Value > 0)
                 {
                     targets[attacker] = bestTarget.Key;
@@ -151,28 +234,35 @@ namespace aoc2018.Code
                 return 0;
             }
 
-            if (defender.Weaknesses.HasFlag(attacker.AttackType))
-            {
-                return attacker.EffectivePower * 2;
-            }
+            var attackPower = defender.Weaknesses.HasFlag(attacker.AttackType) 
+                ? attacker.EffectivePower * 2 
+                : attacker.EffectivePower;
 
-            return attacker.EffectivePower;
+            // Group will not attack if it will do no damage
+            return attackPower > defender.HitPoints ? attackPower : 0;
         }
 
-        public static void Attack(Group attacker, Group defender)
+        private static void Attack(Group attacker, Group defender, StringBuilder log)
         {
+            // Can't attack if you're already dead
             if (attacker.UnitCount <= 0)
+            {
                 return;
+            }
 
             var damage = DamageIfAttacked(attacker, defender);
             var unitsKilled = damage / defender.HitPoints;
+            
+            log.AppendLine($"{attacker.Allegiance} {attacker.Id} attacks {defender.Allegiance} {defender.Id} for {damage}, {unitsKilled} of {defender.UnitCount} killed");
+
             defender.UnitCount -= unitsKilled;
         }
 
-        [DebuggerDisplay("{Name}")]
         public class Group
         {
-            public string Name { get; set; }
+            public Allegiance Allegiance { get; set; }
+            public int Id { get; set; }
+
             public int UnitCount { get; set; }
             public int HitPoints { get; set; }
             public int AttackDamage { get; set; }

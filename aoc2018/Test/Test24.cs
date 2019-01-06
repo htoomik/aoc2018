@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Text;
 using aoc2018.Code;
 using Xunit;
 using Xunit.Abstractions;
@@ -56,7 +57,7 @@ Infection:
         [InlineData("1 units each with 1 hit points (weak to radiation; immune to fire) with an attack that does 1 cold damage at initiative 1")]
         public void TestParseSpecials(string input)
         {
-            Day24.ParseArmy(input, null);
+            Day24.ParseArmy(input, Day24.Allegiance.ImmuneSystem);
         }
 
         [Fact]
@@ -87,6 +88,7 @@ Infection:
         public void TestSelectTargets()
         {
             var (imm, inf) = Day24.Parse(Input.Trim());
+            var log = new StringBuilder();
 
             var targets1 = Day24.SelectTargets(inf, imm);
             Assert.Equal(targets1[inf[0]], imm[0]);
@@ -101,8 +103,9 @@ Infection:
         public void TestPairUp()
         {
             var (imm, inf) = Day24.Parse(Input.Trim());
+            var log = new StringBuilder();
 
-            var targets = Day24.PairUp(imm, inf).ToList();
+            var targets = Day24.PairUp(imm, inf, log).ToList();
 
             Assert.Equal(inf[1], targets[0].Item1);
             Assert.Equal(imm[1], targets[0].Item2);
@@ -112,19 +115,58 @@ Infection:
         }
 
         [Fact]
-        public void TestAttack()
+        public void Test()
         {
-            var (imm, inf) = Day24.Parse(Input.Trim());
-
-            var targets1 = Day24.SelectTargets(inf, imm);
-            var targets2 = Day24.SelectTargets(imm, inf);
+            var (result, log) = Day24.Solve(Input);
+            Assert.Equal(5216, result);
+            _output.WriteLine(log);
         }
 
         [Fact]
-        public void Test()
+        public void Test2()
         {
-            var result = Day24.Solve(Input);
-            Assert.Equal(5216, result);
+            var (boost, result, log) = Day24.Solve2(Input);
+            Assert.Equal(1570, boost);
+            Assert.Equal(51, result);
+            _output.WriteLine(log);
+        }
+
+        [Fact]
+        public void Test2a()
+        {
+            var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input24_a.txt");
+            var (boost, result, log) = Day24.Solve2(input);
+            Assert.Equal(90, boost);
+            Assert.Equal(434, result);
+
+            File.WriteAllText("C:\\Code\\aoc2018\\output24a.txt", log);
+        }
+
+        [Fact]
+        public void TestSelectTargets_a()
+        {
+            var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input24_a.txt");
+            var (imm, inf) = Day24.Parse(input.Trim());
+
+            foreach (var g in imm)
+            {
+                g.AttackDamage += 90;
+            }
+
+            var log = new StringBuilder();
+
+            var targets1 = Day24.SelectTargets(inf, imm);
+            var targets2 = Day24.SelectTargets(imm, inf);
+            
+            _output.WriteLine(log.ToString());
+
+            var inf3 = inf.Single(a => a.Id == 3);
+            var inf3target = targets1[inf3];
+            Assert.Equal(0, inf3target.Id);
+
+            var imm1 = imm.Single(a => a.Id == 1);
+            var imm1Target = targets2[imm1];
+            Assert.Equal(7, imm1Target.Id);
         }
 
         [Fact]
@@ -133,6 +175,16 @@ Infection:
             var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input24.txt");
             var result = Day24.Solve(input);
             _output.WriteLine(result.ToString());
+        }
+
+        [Fact]
+        public void Solve2()
+        {
+            var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input24.txt");
+            var (boost, result, log) = Day24.Solve2(input);
+            _output.WriteLine(boost.ToString());
+            File.WriteAllText("C:\\Code\\aoc2018\\output24.txt", log);
+            _output.WriteLine(log);
         }
     }
 }
