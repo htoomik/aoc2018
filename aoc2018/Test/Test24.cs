@@ -183,6 +183,7 @@ Infection:
             var input = File.ReadAllText("C:\\Code\\aoc2018\\aoc2018\\Data\\input24.txt");
             var (boost, result, log) = Day24.Solve2(input);
             _output.WriteLine(boost.ToString());
+            _output.WriteLine(result.ToString());
             File.WriteAllText("C:\\Code\\aoc2018\\output24.txt", log);
             _output.WriteLine(log);
         }

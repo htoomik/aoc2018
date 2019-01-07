@@ -91,9 +91,18 @@ Infection:
                 }
 
                 // Attack!
+                var kills = 0;
                 foreach (var pair in allTargets)
                 {
-                    Attack(pair.Item1, pair.Item2, log);
+                    kills += Attack(pair.Item1, pair.Item2, log);
+                }
+
+                // If stalemate, exit
+                if (kills == 0)
+                {
+                    log.AppendLine("Nobody managed to kill anyone. State of armies:");
+                    log.AppendLine(LogStateOfArmies(imm, inf));
+                    return null;
                 }
 
                 // Remove empty groups
@@ -238,24 +247,27 @@ Infection:
                 ? attacker.EffectivePower * 2 
                 : attacker.EffectivePower;
 
-            // Group will not attack if it will do no damage
-            return attackPower > defender.HitPoints ? attackPower : 0;
+            // Group will not attack if it will do no damage...
+            // ... but will attack if it believes it can do damage, even though the damage won't kill anyone
+            // return attackPower > defender.HitPoints ? attackPower : 0;
+            return attackPower;
         }
 
-        private static void Attack(Group attacker, Group defender, StringBuilder log)
+        private static int Attack(Group attacker, Group defender, StringBuilder log)
         {
             // Can't attack if you're already dead
             if (attacker.UnitCount <= 0)
             {
-                return;
+                return 0;
             }
 
             var damage = DamageIfAttacked(attacker, defender);
             var unitsKilled = damage / defender.HitPoints;
             
             log.AppendLine($"{attacker.Allegiance} {attacker.Id} attacks {defender.Allegiance} {defender.Id} for {damage}, {unitsKilled} of {defender.UnitCount} killed");
-
+            
             defender.UnitCount -= unitsKilled;
+            return unitsKilled;
         }
 
         public class Group
