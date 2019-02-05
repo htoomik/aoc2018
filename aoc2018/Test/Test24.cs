@@ -138,8 +138,6 @@ Infection:
             var (boost, result, log) = Day24.Solve2(input);
             Assert.Equal(90, boost);
             Assert.Equal(434, result);
-
-            File.WriteAllText("C:\\Code\\aoc2018\\output24a.txt", log);
         }
 
         [Fact]
@@ -184,7 +182,6 @@ Infection:
             var (boost, result, log) = Day24.Solve2(input);
             _output.WriteLine(boost.ToString());
             _output.WriteLine(result.ToString());
-            File.WriteAllText("C:\\Code\\aoc2018\\output24.txt", log);
             _output.WriteLine(log);
         }
     }
