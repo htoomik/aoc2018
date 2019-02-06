@@ -1,0 +1,184 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace aoc2018.Code
+{
+    class Day21
+    {
+        public static int Solve(string[] input, bool firstPart)
+        {
+            var ipRegister = int.Parse(input[0].Replace("#ip ", ""));
+            var instructions = Parse(input.Skip(1));
+            var state = new int[6];
+            var reg4Values = new HashSet<int>();
+            var lastReg4Value = 0;
+
+            while (true)
+            {
+                var ip = state[ipRegister];
+
+                var instruction = instructions[ip];
+                instruction.Action(state, instruction.A, instruction.B, instruction.C);
+
+                if (instruction.Id == 28)
+                {
+                    var reg4Value = state[4];
+
+                    if (firstPart)
+                    {
+                        return reg4Value;
+                    }
+
+                    if (reg4Values.Contains(reg4Value))
+                    {
+                        // loop detected
+                        return lastReg4Value;
+                    }
+
+                    lastReg4Value = reg4Value;
+                    reg4Values.Add(reg4Value);
+                }
+
+                if (state[ipRegister] >= instructions.Count - 1)
+                    break;
+
+                state[ipRegister] = state[ipRegister] + 1;
+            }
+
+            return 0;
+        }
+
+        private static List<Operation> Parse(IEnumerable<string> input)
+        {
+            return input
+                .Select(s => s.Split(" "))
+                .Select((parts, i) => new Operation
+                {
+                    Id = i,
+                    Name = parts[0],
+                    Action = Operations[parts[0]],
+                    A = int.Parse(parts[1]),
+                    B = int.Parse(parts[2]),
+                    C = int.Parse(parts[3]),
+                })
+                .ToList();
+        }
+
+        #region OperationsSet
+        private static readonly Dictionary<string, Action<int[], int,int,int>> Operations = new Dictionary<string, Action<int[], int,int,int>>
+        {
+            { "addr", Addr },
+            { "addi", Addi },
+            { "mulr", Mulr },
+            { "muli", Muli },
+            { "banr", Banr },
+            { "bani", Bani },
+            { "borr", Borr },
+            { "bori", Bori },
+            { "setr", Setr },
+            { "seti", Seti },
+            { "gtri", Gtri },
+            { "gtir", Gtir },
+            { "gtrr", Gtrr },
+            { "eqir", Eqir },
+            { "eqri", Eqri },
+            { "eqrr", Eqrr }
+        };
+        #endregion
+
+        #region Operations
+
+        private static void Addr(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] + registers[b];
+        }
+
+        private static void Addi(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] + b;
+        }
+
+        private static void Mulr(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] * registers[b];
+        }
+
+        private static void Muli(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] * b;
+        }
+
+        private static void Banr(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] & registers[b];
+        }
+
+        private static void Bani(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] & b;
+        }
+
+        private static void Borr(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] | registers[b];
+        }
+
+        private static void Bori(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] | b;
+        }
+
+        private static void Setr(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a];
+        }
+
+        private static void Seti(int[] registers, int a, int b, int c)
+        {
+            registers[c] = a;
+        }
+
+        private static void Gtir(int[] registers, int a, int b, int c)
+        {
+            registers[c] = a > registers[b] ? 1 : 0;
+        }
+
+        private static void Gtri(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] > b ? 1 : 0;
+        }
+
+        private static void Gtrr(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] > registers[b] ? 1 : 0;
+        }
+
+        private static void Eqir(int[] registers, int a, int b, int c)
+        {
+            registers[c] = a == registers[b] ? 1 : 0;
+        }
+
+        private static void Eqri(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] == b ? 1 : 0;
+        }
+
+        private static void Eqrr(int[] registers, int a, int b, int c)
+        {
+            registers[c] = registers[a] == registers[b] ? 1 : 0;
+        }
+
+        #endregion
+
+        private class Operation
+        {
+            public string Name { get; set; }
+            public int Id { get; set; }
+            public int A { get; set; }
+            public int B { get; set; }
+            public int C { get; set; }
+            public Action<int[], int, int, int> Action { get; set; }
+        }
+    }
+}
