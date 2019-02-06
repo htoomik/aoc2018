@@ -40,13 +40,8 @@ namespace aoc2018.Code
                     reg4Values.Add(reg4Value);
                 }
 
-                if (state[ipRegister] >= instructions.Count - 1)
-                    break;
-
-                state[ipRegister] = state[ipRegister] + 1;
+                state[ipRegister]++;
             }
-
-            return 0;
         }
 
         private static List<Operation> Parse(IEnumerable<string> input)
