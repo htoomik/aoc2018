@@ -1,15 +1,18 @@
 ﻿<ProjectConfiguration>
   <Settings>
-    <DefaultTestTimeout>1200000</DefaultTestTimeout>
+    <DefaultTestTimeout>2400000</DefaultTestTimeout>
     <IgnoredTests>
+      <NamedTestSelector>
+        <TestName>aoc2018.Test.Test09_LinkedList.Solve2</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>aoc2018.Test.Test21.Solve_2</TestName>
+      </NamedTestSelector>
       <NamedTestSelector>
         <TestName>aoc2018.Test.Test15.Solution.Solve1</TestName>
       </NamedTestSelector>
       <NamedTestSelector>
         <TestName>aoc2018.Test.Test15.Solution.Solve2</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>aoc2018.Test.Test09_LinkedList.Solve2</TestName>
       </NamedTestSelector>
     </IgnoredTests>
   </Settings>
