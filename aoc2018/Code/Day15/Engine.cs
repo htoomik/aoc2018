@@ -30,8 +30,9 @@ namespace aoc2018.Code.Day15
                 var aborted = false;
                 foreach (var unit in sortedUnits)
                 {
-                    // Dead units are removed from the main Units list but not from sortedUnits
-                    if (unit.HitPoints < 0)
+                    // Dead units are removed from the main Units list but not from sortedUnits.
+                    // Therefore, skip them here.
+                    if (unit.HitPoints <= 0)
                         continue;
 
                     var enemyCount = Units.Count(u => u.Race != unit.Race);

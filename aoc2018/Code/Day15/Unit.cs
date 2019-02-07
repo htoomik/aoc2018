@@ -90,7 +90,7 @@ namespace aoc2018.Code.Day15
         private void Attack(Unit target)
         {
             target.HitPoints -= AttackPower;
-            if (target.HitPoints < 0)
+            if (target.HitPoints <= 0)
             {
                 _engine.Units.Remove(target);
             }
